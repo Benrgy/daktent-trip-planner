@@ -12,8 +12,8 @@ describe("PackingChecklist", () => {
 
   it("shows progress counter starting at 0", () => {
     render(<PackingChecklist />);
-    // Should show 0/total
-    expect(screen.getByText(/^0\//)).toBeInTheDocument();
+    // The main progress counter shows 0/39
+    expect(screen.getByText("0/39")).toBeInTheDocument();
   });
 
   it("toggles checklist item", () => {
