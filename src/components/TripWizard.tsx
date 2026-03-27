@@ -5,7 +5,7 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { MapPin, Calendar, Euro, Car, ChevronRight } from "lucide-react";
+import { ArrowRight } from "lucide-react";
 
 export interface TripConfig {
   startLocation: string;
@@ -22,11 +22,11 @@ interface TripWizardProps {
 }
 
 const preferenceOptions = [
-  { id: "natuur", label: "🌲 Natuur" },
-  { id: "bergen", label: "⛰️ Bergen" },
-  { id: "kust", label: "🌊 Kust" },
-  { id: "steden", label: "🏙️ Steden" },
-  { id: "offgrid", label: "🔌 Off-grid" },
+  { id: "natuur", label: "Natuur" },
+  { id: "bergen", label: "Bergen" },
+  { id: "kust", label: "Kust" },
+  { id: "steden", label: "Steden" },
+  { id: "offgrid", label: "Off-grid" },
 ];
 
 const TripWizard = ({ onGenerate }: TripWizardProps) => {
@@ -50,18 +50,17 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
   };
 
   return (
-    <section id="wizard" className="py-16 px-4">
-      <div className="container mx-auto max-w-3xl">
-        <h2 className="mb-2 text-center text-3xl font-bold text-foreground">Plan Je Route</h2>
-        <p className="mb-10 text-center text-muted-foreground">Vul de gegevens in en wij doen de rest</p>
+    <section id="wizard" className="border-b border-border py-16 px-4">
+      <div className="container mx-auto max-w-2xl">
+        <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 1</div>
+        <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Configureer je trip</h2>
+        <p className="mb-8 text-sm text-muted-foreground">Vul onderstaande gegevens in om een route samen te stellen.</p>
 
-        <div className="space-y-8 rounded-2xl bg-card p-6 shadow-card md:p-10">
+        <div className="space-y-6">
           {/* Start & Destination */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                <MapPin className="h-4 w-4 text-primary" /> Startlocatie
-              </Label>
+              <Label className="mb-1.5 text-sm font-medium">Startlocatie</Label>
               <Input
                 placeholder="bijv. Amsterdam"
                 value={config.startLocation}
@@ -69,44 +68,40 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
               />
             </div>
             <div>
-              <Label className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                <MapPin className="h-4 w-4 text-secondary" /> Bestemming
-              </Label>
+              <Label className="mb-1.5 text-sm font-medium">Bestemming</Label>
               <Select value={config.destination} onValueChange={v => setConfig(prev => ({ ...prev, destination: v }))}>
                 <SelectTrigger><SelectValue placeholder="Kies land" /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="NL">🇳🇱 Nederland</SelectItem>
-                  <SelectItem value="BE">🇧🇪 België</SelectItem>
-                  <SelectItem value="DE">🇩🇪 Duitsland</SelectItem>
-                  <SelectItem value="FR">🇫🇷 Frankrijk</SelectItem>
-                  <SelectItem value="SC">🇳🇴 Scandinavië</SelectItem>
+                  <SelectItem value="NL">Nederland</SelectItem>
+                  <SelectItem value="BE">België</SelectItem>
+                  <SelectItem value="DE">Duitsland</SelectItem>
+                  <SelectItem value="FR">Frankrijk</SelectItem>
+                  <SelectItem value="SC">Scandinavië</SelectItem>
                 </SelectContent>
               </Select>
             </div>
           </div>
 
           {/* Days & Budget */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label className="mb-3 flex items-center gap-2 text-sm font-semibold">
-                <Calendar className="h-4 w-4 text-primary" /> Aantal dagen: {config.days}
+              <Label className="mb-2 text-sm font-medium">
+                Aantal dagen: <span className="font-semibold text-foreground">{config.days}</span>
               </Label>
               <Slider min={1} max={14} step={1} value={[config.days]} onValueChange={([v]) => setConfig(prev => ({ ...prev, days: v }))} />
             </div>
             <div>
-              <Label className="mb-3 flex items-center gap-2 text-sm font-semibold">
-                <Euro className="h-4 w-4 text-accent" /> Budget per dag: €{config.budget}
+              <Label className="mb-2 text-sm font-medium">
+                Budget per dag: <span className="font-semibold text-foreground">€{config.budget}</span>
               </Label>
               <Slider min={30} max={200} step={10} value={[config.budget]} onValueChange={([v]) => setConfig(prev => ({ ...prev, budget: v }))} />
             </div>
           </div>
 
           {/* Car & People */}
-          <div className="grid gap-6 md:grid-cols-2">
+          <div className="grid gap-4 sm:grid-cols-2">
             <div>
-              <Label className="mb-2 flex items-center gap-2 text-sm font-semibold">
-                <Car className="h-4 w-4 text-primary" /> Type auto
-              </Label>
+              <Label className="mb-1.5 text-sm font-medium">Type auto</Label>
               <Select value={config.carType} onValueChange={v => setConfig(prev => ({ ...prev, carType: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -118,7 +113,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
               </Select>
             </div>
             <div>
-              <Label className="mb-2 text-sm font-semibold">Aantal personen</Label>
+              <Label className="mb-1.5 text-sm font-medium">Aantal personen</Label>
               <Select value={String(config.people)} onValueChange={v => setConfig(prev => ({ ...prev, people: Number(v) }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
@@ -130,15 +125,15 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
 
           {/* Preferences */}
           <div>
-            <Label className="mb-3 text-sm font-semibold">Voorkeuren</Label>
-            <div className="flex flex-wrap gap-3">
+            <Label className="mb-2 text-sm font-medium">Voorkeuren</Label>
+            <div className="flex flex-wrap gap-2">
               {preferenceOptions.map(p => (
                 <label
                   key={p.id}
-                  className={`flex cursor-pointer items-center gap-2 rounded-full border px-4 py-2 text-sm font-medium transition-colors ${
+                  className={`cursor-pointer rounded-md border px-3 py-1.5 text-sm font-medium transition-colors ${
                     config.preferences.includes(p.id)
-                      ? "border-primary bg-primary/10 text-primary"
-                      : "border-border bg-muted text-muted-foreground hover:border-primary/50"
+                      ? "border-primary bg-primary/5 text-primary"
+                      : "border-border bg-card text-muted-foreground hover:border-primary/30 hover:text-foreground"
                   }`}
                 >
                   <Checkbox
@@ -156,9 +151,9 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
             size="lg"
             onClick={() => onGenerate(config)}
             disabled={!config.startLocation || !config.destination}
-            className="w-full bg-primary text-primary-foreground py-6 text-lg font-bold transition-transform hover:scale-[1.02]"
+            className="w-full gap-2 py-5 text-sm font-semibold"
           >
-            🗺️ Genereer Mijn Route <ChevronRight className="ml-2 h-5 w-5" />
+            Genereer route <ArrowRight className="h-4 w-4" />
           </Button>
         </div>
       </div>

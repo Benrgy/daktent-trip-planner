@@ -1,4 +1,5 @@
 import { useState, useRef } from "react";
+import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import TripWizard, { TripConfig } from "@/components/TripWizard";
 import CampingMap from "@/components/CampingMap";
@@ -8,7 +9,6 @@ import WeatherDashboard from "@/components/WeatherDashboard";
 import PackingChecklist from "@/components/PackingChecklist";
 import { AffiliateTopBanner, AffiliateCTA } from "@/components/AffiliateBanner";
 import { campingSpots } from "@/data/campingSpots";
-import { MapPin } from "lucide-react";
 
 const Index = () => {
   const [tripConfig, setTripConfig] = useState<TripConfig | null>(null);
@@ -17,7 +17,6 @@ const Index = () => {
 
   const handleGenerate = (config: TripConfig) => {
     setTripConfig(config);
-    // Filter by destination
     setFilter(config.destination || "all");
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
@@ -36,6 +35,7 @@ const Index = () => {
   return (
     <div className="min-h-screen bg-background">
       <AffiliateTopBanner />
+      <Navbar />
       <Hero onStart={handleStart} />
       <TripWizard onGenerate={handleGenerate} />
 
@@ -44,15 +44,14 @@ const Index = () => {
         {tripConfig && (
           <>
             {/* Map section */}
-            <section className="bg-muted/50 py-16 px-4">
-              <div className="container mx-auto max-w-5xl">
-                <h2 className="mb-2 flex items-center justify-center gap-2 text-3xl font-bold">
-                  <MapPin className="h-7 w-7 text-primary" /> Kampeerplekken
-                </h2>
-                <p className="mb-6 text-center text-muted-foreground">
-                  {filteredSpots.length} spots gevonden — klik op een marker voor details
+            <section id="spots" className="border-b border-border bg-muted/30 py-16 px-4">
+              <div className="container mx-auto max-w-3xl">
+                <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 2</div>
+                <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Kampeerplekken</h2>
+                <p className="mb-6 text-sm text-muted-foreground">
+                  {filteredSpots.length} locaties gevonden — klik op een marker voor details.
                 </p>
-                <div className="mb-6 flex justify-center">
+                <div className="mb-4">
                   <SpotFilters filter={filter} onFilterChange={setFilter} />
                 </div>
                 <CampingMap spots={filteredSpots} />
@@ -68,10 +67,10 @@ const Index = () => {
       </div>
 
       {/* Footer */}
-      <footer className="border-t border-border bg-card py-8 px-4 text-center text-sm text-muted-foreground">
-        <p className="font-semibold text-foreground">DaktentTrip.nl</p>
-        <p className="mt-1">© 2026 — Plan je perfecte daktent avontuur</p>
-        <p className="mt-2 text-xs">Wildcamping data is indicatief. Controleer altijd lokale regelgeving.</p>
+      <footer className="border-t border-border bg-card py-8 px-4 text-center">
+        <p className="font-display text-sm font-semibold text-foreground">DaktentTrip.nl</p>
+        <p className="mt-1 text-xs text-muted-foreground">© 2026 — Plan je perfecte daktent avontuur</p>
+        <p className="mt-2 text-[11px] text-muted-foreground">Wildcamping data is indicatief. Controleer altijd lokale regelgeving.</p>
       </footer>
     </div>
   );

@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { packingCategories } from "@/data/packingItems";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ChevronDown, ChevronUp, CheckCircle2 } from "lucide-react";
+import { ChevronDown, ChevronUp, Check } from "lucide-react";
 
 const PackingChecklist = () => {
   const [checked, setChecked] = useState<Set<string>>(new Set());
@@ -27,48 +27,52 @@ const PackingChecklist = () => {
   const progress = Math.round((checked.size / totalItems) * 100);
 
   return (
-    <section className="py-16 px-4">
+    <section className="border-b border-border py-16 px-4">
       <div className="container mx-auto max-w-2xl">
-        <h2 className="mb-2 text-center text-3xl font-bold">Paklijst</h2>
-        <p className="mb-4 text-center text-muted-foreground">Automatisch samengesteld voor jouw trip</p>
+        <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 5</div>
+        <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Paklijst</h2>
+        <p className="mb-6 text-sm text-muted-foreground">Automatisch samengesteld — vink af wat je hebt ingepakt.</p>
 
         {/* Progress */}
-        <div className="mb-8 flex items-center gap-3">
-          <div className="h-3 flex-1 overflow-hidden rounded-full bg-muted">
-            <div className="h-full rounded-full bg-secondary transition-all" style={{ width: `${progress}%` }} />
+        <div className="mb-6 flex items-center gap-3">
+          <div className="h-1.5 flex-1 overflow-hidden rounded-full bg-border">
+            <div className="h-full rounded-full bg-primary transition-all" style={{ width: `${progress}%` }} />
           </div>
-          <span className="text-sm font-semibold text-secondary">{checked.size}/{totalItems}</span>
+          <span className="text-xs font-medium text-muted-foreground">{checked.size}/{totalItems}</span>
         </div>
 
-        <div className="space-y-3">
+        <div className="space-y-2">
           {Object.entries(packingCategories).map(([cat, items]) => {
             const catChecked = items.filter(i => checked.has(i.id)).length;
             const isOpen = openSections.has(cat);
+            const allDone = catChecked === items.length;
             return (
-              <div key={cat} className="rounded-xl bg-card shadow-card overflow-hidden">
+              <div key={cat} className="overflow-hidden rounded-lg border border-border bg-card shadow-card">
                 <button
                   onClick={() => toggleSection(cat)}
-                  className="flex w-full items-center justify-between p-4 text-left"
+                  className="flex w-full items-center justify-between px-4 py-3 text-left text-sm"
                 >
-                  <div className="flex items-center gap-3">
-                    {catChecked === items.length ? (
-                      <CheckCircle2 className="h-5 w-5 text-secondary" />
+                  <div className="flex items-center gap-2.5">
+                    {allDone ? (
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-secondary text-secondary-foreground">
+                        <Check className="h-3 w-3" />
+                      </span>
                     ) : (
-                      <span className="flex h-5 w-5 items-center justify-center rounded-full bg-muted text-xs font-bold text-muted-foreground">
+                      <span className="flex h-5 w-5 items-center justify-center rounded-full border border-border text-[10px] font-semibold text-muted-foreground">
                         {catChecked}
                       </span>
                     )}
-                    <span className="font-semibold">{cat}</span>
-                    <span className="text-xs text-muted-foreground">({catChecked}/{items.length})</span>
+                    <span className="font-medium text-foreground">{cat}</span>
+                    <span className="text-xs text-muted-foreground">{catChecked}/{items.length}</span>
                   </div>
                   {isOpen ? <ChevronUp className="h-4 w-4 text-muted-foreground" /> : <ChevronDown className="h-4 w-4 text-muted-foreground" />}
                 </button>
                 {isOpen && (
-                  <div className="border-t border-border px-4 pb-4">
+                  <div className="border-t border-border px-4 pb-3">
                     {items.map(item => (
-                      <label key={item.id} className="flex cursor-pointer items-center gap-3 py-2 text-sm hover:bg-muted/50 rounded px-2 -mx-2">
+                      <label key={item.id} className="flex cursor-pointer items-center gap-3 rounded-md px-2 py-1.5 text-sm hover:bg-muted/50 -mx-2">
                         <Checkbox checked={checked.has(item.id)} onCheckedChange={() => toggle(item.id)} />
-                        <span className={checked.has(item.id) ? "line-through text-muted-foreground" : ""}>{item.name}</span>
+                        <span className={checked.has(item.id) ? "line-through text-muted-foreground" : "text-foreground"}>{item.name}</span>
                       </label>
                     ))}
                   </div>
