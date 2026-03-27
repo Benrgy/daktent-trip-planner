@@ -2,7 +2,7 @@ import { TripConfig } from "./TripWizard";
 import { Cloud, Sun, CloudRain, CloudSun, Wind, Thermometer } from "lucide-react";
 
 const weatherIcons = [Sun, CloudSun, Cloud, Sun, CloudRain, CloudSun, Sun];
-const weatherLabels = ["Zonnig", "Half bewolkt", "Bewolkt", "Zonnig", "Regenachtig", "Half bewolkt", "Zonnig"];
+const weatherLabels = ["Zonnig", "Half bewolkt", "Bewolkt", "Zonnig", "Regen", "Half bewolkt", "Zonnig"];
 
 const generateMockWeather = (days: number) => {
   return Array.from({ length: Math.min(days, 7) }, (_, i) => {
@@ -29,27 +29,24 @@ const WeatherDashboard = ({ config }: Props) => {
   const weather = generateMockWeather(config.days);
 
   return (
-    <section className="bg-muted/50 py-16 px-4">
-      <div className="container mx-auto max-w-4xl">
-        <h2 className="mb-2 text-center text-3xl font-bold">Weer Voorspelling</h2>
-        <p className="mb-8 text-center text-sm text-muted-foreground">Voorbeelddata — koppel een weer API voor live gegevens</p>
+    <section className="border-b border-border bg-muted/30 py-16 px-4">
+      <div className="container mx-auto max-w-3xl">
+        <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 4</div>
+        <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Weersverwachting</h2>
+        <p className="mb-8 text-sm text-muted-foreground">7-daagse voorspelling — koppel een weer-API voor live data.</p>
 
-        <div className="grid grid-cols-2 gap-3 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-7">
+        <div className="grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-7">
           {weather.map((day, i) => (
-            <div key={i} className="flex flex-col items-center rounded-xl bg-card p-4 shadow-card transition-transform hover:scale-105">
-              <p className="mb-2 text-xs font-semibold text-muted-foreground">{day.date}</p>
-              <day.Icon className={`mb-2 h-8 w-8 ${day.label === "Regenachtig" ? "text-primary" : "text-accent"}`} />
-              <p className="text-xs font-medium">{day.label}</p>
-              <div className="mt-2 flex items-center gap-1 text-sm">
-                <Thermometer className="h-3 w-3 text-destructive" />
-                <span className="font-bold">{day.tempMax}°</span>
+            <div key={i} className="rounded-lg border border-border bg-card p-3 shadow-card text-center">
+              <p className="mb-2 text-[11px] font-medium text-muted-foreground">{day.date}</p>
+              <day.Icon className={`mx-auto mb-1.5 h-6 w-6 ${day.label === "Regen" ? "text-primary" : "text-accent"}`} />
+              <p className="text-[11px] font-medium text-foreground">{day.label}</p>
+              <div className="mt-2 flex items-center justify-center gap-1 text-xs">
+                <span className="font-semibold text-foreground">{day.tempMax}°</span>
                 <span className="text-muted-foreground">/ {day.tempMin}°</span>
               </div>
-              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                <CloudRain className="h-3 w-3" /> {day.rain}%
-              </div>
-              <div className="mt-1 flex items-center gap-1 text-xs text-muted-foreground">
-                <Wind className="h-3 w-3" /> {day.wind} km/h
+              <div className="mt-1 flex items-center justify-center gap-1 text-[10px] text-muted-foreground">
+                <Wind className="h-2.5 w-2.5" /> {day.wind} km/h
               </div>
             </div>
           ))}
