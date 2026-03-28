@@ -1,9 +1,7 @@
-import { useEffect } from "react";
-import { MapContainer, TileLayer, Marker, Popup, useMap } from "react-leaflet";
+import { useEffect, useRef } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
 import { CampingSpot } from "@/data/campingSpots";
-import { Droplets, Flame, Zap, Bath, Star, Shield } from "lucide-react";
 
 delete (L.Icon.Default.prototype as any)._getIconUrl;
 L.Icon.Default.mergeOptions({
@@ -28,63 +26,95 @@ const paidIcon = new L.Icon({
   popupAnchor: [1, -34],
 });
 
-const facilityIcon: Record<string, React.ReactNode> = {
-  water: <Droplets className="h-3.5 w-3.5 text-primary" />,
-  fire: <Flame className="h-3.5 w-3.5 text-accent" />,
-  electricity: <Zap className="h-3.5 w-3.5 text-accent" />,
-  toilet: <Bath className="h-3.5 w-3.5 text-secondary" />,
-};
+function buildPopupHtml(spot: CampingSpot): string {
+  const priceLabel = spot.type === "free"
+    ? '<span style="background:#f0fdf4;color:#15803d;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500">Gratis</span>'
+    : `<span style="background:#eff6ff;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500">€${spot.pricePerNight}/nacht</span>`;
 
-function FitBounds({ spots }: { spots: CampingSpot[] }) {
-  const map = useMap();
-  useEffect(() => {
-    if (spots.length > 0) {
-      const bounds = L.latLngBounds(spots.map(s => [s.lat, s.lng]));
-      map.fitBounds(bounds, { padding: [40, 40] });
-    }
-  }, [spots, map]);
-  return null;
+  const facilities = spot.facilities.map(f => {
+    const icons: Record<string, string> = { water: "💧", fire: "🔥", electricity: "⚡", toilet: "🚿" };
+    return icons[f] || f;
+  }).join(" ");
+
+  const daktent = spot.daktentFriendly
+    ? '<div style="margin-top:4px"><span style="background:#f0fdf4;color:#15803d;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500">Daktent vriendelijk</span></div>'
+    : '';
+
+  return `
+    <div style="font-size:12px;line-height:1.5;max-width:220px">
+      <h3 style="font-size:14px;font-weight:600;margin:0 0 4px">${spot.name}</h3>
+      <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
+        ${priceLabel}
+        <span style="color:#92400e">⭐ ${spot.rating}</span>
+      </div>
+      <p style="color:#6b7280;margin:0 0 4px">${spot.description}</p>
+      <div style="margin-bottom:4px">${facilities}</div>
+      <div style="color:#6b7280;font-size:11px">🛡️ ${spot.legalStatus}</div>
+      ${daktent}
+    </div>
+  `;
 }
 
 interface CampingMapProps {
   spots: CampingSpot[];
 }
 
-const CampingMap = ({ spots }: CampingMapProps) => (
-  <div className="overflow-hidden rounded-lg border border-border shadow-card">
-    <MapContainer center={[51.5, 5.5]} zoom={6} className="h-[380px] w-full md:h-[460px]" scrollWheelZoom={false}>
-      <TileLayer
-        attribution='&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-        url="https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png"
-      />
-      <FitBounds spots={spots} />
-      {spots.map(spot => (
-        <Marker key={spot.id} position={[spot.lat, spot.lng]} icon={spot.type === "free" ? freeIcon : paidIcon}>
-          <Popup maxWidth={240}>
-            <div className="space-y-1.5 text-xs">
-              <h3 className="text-sm font-semibold">{spot.name}</h3>
-              <div className="flex items-center gap-2">
-                <span className={`rounded px-1.5 py-0.5 text-[11px] font-medium ${spot.type === "free" ? "bg-green-50 text-green-700" : "bg-blue-50 text-blue-700"}`}>
-                  {spot.type === "free" ? "Gratis" : `€${spot.pricePerNight}/nacht`}
-                </span>
-                <span className="flex items-center gap-0.5 text-muted-foreground"><Star className="h-3 w-3 fill-amber-400 text-amber-400" /> {spot.rating}</span>
-              </div>
-              <p className="text-muted-foreground leading-relaxed">{spot.description}</p>
-              <div className="flex gap-1.5">{spot.facilities.map(f => <span key={f} title={f}>{facilityIcon[f]}</span>)}</div>
-              <div className="flex items-center gap-1 text-muted-foreground">
-                <Shield className="h-3 w-3" /> {spot.legalStatus}
-              </div>
-              {spot.daktentFriendly && (
-                <span className="inline-block rounded bg-green-50 px-1.5 py-0.5 text-[11px] font-medium text-green-700">
-                  Daktent vriendelijk
-                </span>
-              )}
-            </div>
-          </Popup>
-        </Marker>
-      ))}
-    </MapContainer>
-  </div>
-);
+const CampingMap = ({ spots }: CampingMapProps) => {
+  const containerRef = useRef<HTMLDivElement>(null);
+  const mapRef = useRef<L.Map | null>(null);
+  const markersRef = useRef<L.LayerGroup | null>(null);
+
+  // Initialize map once
+  useEffect(() => {
+    if (!containerRef.current || mapRef.current) return;
+
+    const map = L.map(containerRef.current, {
+      center: [51.5, 5.5],
+      zoom: 6,
+      scrollWheelZoom: false,
+    });
+
+    L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
+    }).addTo(map);
+
+    markersRef.current = L.layerGroup().addTo(map);
+    mapRef.current = map;
+
+    return () => {
+      map.remove();
+      mapRef.current = null;
+      markersRef.current = null;
+    };
+  }, []);
+
+  // Update markers when spots change
+  useEffect(() => {
+    const map = mapRef.current;
+    const markers = markersRef.current;
+    if (!map || !markers) return;
+
+    markers.clearLayers();
+
+    spots.forEach(spot => {
+      const marker = L.marker([spot.lat, spot.lng], {
+        icon: spot.type === "free" ? freeIcon : paidIcon,
+      });
+      marker.bindPopup(buildPopupHtml(spot), { maxWidth: 240 });
+      markers.addLayer(marker);
+    });
+
+    if (spots.length > 0) {
+      const bounds = L.latLngBounds(spots.map(s => [s.lat, s.lng]));
+      map.fitBounds(bounds, { padding: [40, 40] });
+    }
+  }, [spots]);
+
+  return (
+    <div className="overflow-hidden rounded-lg border border-border shadow-card">
+      <div ref={containerRef} className="h-[380px] w-full md:h-[460px]" />
+    </div>
+  );
+};
 
 export default CampingMap;
