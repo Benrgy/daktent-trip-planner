@@ -9,8 +9,28 @@ const Navbar = () => (
       </a>
       <nav className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
         <a href="#wizard" className="transition-colors hover:text-foreground">Route planner</a>
-        <a href="#spots" className="transition-colors hover:text-foreground">Kampeerplekken</a>
-        <a href="#kosten" className="transition-colors hover:text-foreground">Kosten</a>
+        <a
+          href="#spots"
+          className="transition-colors hover:text-foreground"
+          onClick={(e) => {
+            const el = document.getElementById("spots");
+            if (!el) {
+              e.preventDefault();
+              document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >Kampeerplekken</a>
+        <a
+          href="#kosten"
+          className="transition-colors hover:text-foreground"
+          onClick={(e) => {
+            const el = document.getElementById("kosten");
+            if (!el) {
+              e.preventDefault();
+              document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
+            }
+          }}
+        >Kosten</a>
       </nav>
     </div>
   </header>
