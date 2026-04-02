@@ -67,10 +67,47 @@ const Index = () => {
       </div>
 
       {/* Footer */}
+      {/* FAQ Section — powers AI Overviews & reduces bounce */}
+      <section id="faq" className="border-t border-border bg-muted/20 py-16 px-4">
+        <div className="container mx-auto max-w-3xl">
+          <h2 className="mb-8 font-display text-2xl font-bold text-foreground">Veelgestelde vragen</h2>
+          <div className="space-y-6" itemScope itemType="https://schema.org/FAQPage">
+            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question" open>
+              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Wat is DaktentTripPlanner?</summary>
+              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">DaktentTripPlanner is een gratis online tool waarmee je in 3 minuten een complete daktent roadtrip plant. Je krijgt kampeerplekken op een interactieve kaart, een kostenberekening, weersverwachting en een slimme inpakchecklist — alles in één overzicht.</p>
+              </div>
+            </details>
+            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Is DaktentTripPlanner gratis te gebruiken?</summary>
+              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Ja, DaktentTripPlanner is 100% gratis. Je hebt geen account nodig — vul gewoon je trip details in en ontvang direct een compleet reisplan.</p>
+              </div>
+            </details>
+            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Welke landen en kampeerplekken worden ondersteund?</summary>
+              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We hebben 20+ kampeerplekken in Nederland, België, Duitsland, Frankrijk, Spanje, Italië, Noorwegen, Zweden en meer. Elke locatie bevat info over wildcamping regelgeving, voorzieningen en kosten.</p>
+              </div>
+            </details>
+            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
+              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Hoe plan ik een daktent roadtrip?</summary>
+              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Vul je vertrekplaats, bestemming, reisduur en aantal personen in. Klik op 'Genereer route' en je krijgt direct een overzicht met kampeerplekken op de kaart, een kostenoverzicht, weersverwachting en inpakchecklist.</p>
+              </div>
+            </details>
+          </div>
+        </div>
+      </section>
+
       <footer className="border-t border-border bg-card py-8 px-4 text-center">
         <p className="font-display text-sm font-semibold text-foreground">DaktentTripplanner.nl</p>
         <p className="mt-1 text-xs text-muted-foreground">© 2026 — Plan je perfecte daktent avontuur</p>
         <p className="mt-2 text-[11px] text-muted-foreground">Wildcamping data is indicatief. Controleer altijd lokale regelgeving.</p>
+        <nav className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground" aria-label="Footer navigatie">
+          <a href="#wizard" className="hover:text-foreground">Route planner</a>
+          <a href="#faq" className="hover:text-foreground">FAQ</a>
+        </nav>
       </footer>
     </div>
   );

@@ -1,0 +1,35 @@
+# DaktentTripPlanner
+
+> Plan je perfecte daktent roadtrip in 3 minuten — kampeerplekken, kosten, weer en inpaklijst in één tool.
+
+DaktentTripPlanner is een gratis, Nederlandstalige web-app voor daktent kampeerders in Nederland en België. De tool helpt gebruikers om snel een complete roadtrip te plannen met interactieve kaart, kostenberekening, weersverwachting en slimme inpakchecklist.
+
+## Features
+
+- **Route Planner**: Configureer vertrekplaats, bestemming, reisduur en reisgezelschap.
+- **Kampeerplekken Kaart**: 20+ Europese locaties met filters (gratis/betaald, per land). Inclusief wildcamping regelgeving.
+- **Kostenberekening**: Automatische schatting van brandstof, camping, eten en tolkosten per trip.
+- **Weersverwachting**: Actueel weerbericht per bestemming zodat je voorbereid op pad gaat.
+- **Inpakchecklist**: Categorieën: daktent essentials, keuken, kleding, EHBO, documenten.
+
+## Doelgroep
+
+- Nederlandse en Belgische daktent eigenaren
+- Mensen die overwegen een daktent te kopen
+- Roadtrip enthousiastelingen in de Benelux
+
+## Ondersteunde landen
+
+Nederland, België, Duitsland, Frankrijk, Spanje, Portugal, Italië, Noorwegen, Zweden, Denemarken, Oostenrijk, Zwitserland, Kroatië, Slovenië.
+
+## Gebruik
+
+1. Vul vertrekplaats en bestemming in
+2. Kies reisduur en aantal personen
+3. Genereer route — krijg kampeerplekken, kosten en weer in één overzicht
+
+Geen account nodig. Volledig gratis.
+
+## Links
+
+- Website: https://daktenttripplanner.nl/
