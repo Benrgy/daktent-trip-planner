@@ -7,13 +7,15 @@ interface HeroProps {
 }
 
 const Hero = ({ onStart }: HeroProps) => (
-  <section className="relative overflow-hidden border-b border-border">
+<section className="relative overflow-hidden border-b border-border" aria-label="Hero">
     {/* Background image */}
     <img
       src={heroBg}
       alt="Daktent op SUV bij zonsondergang in Europees heuvellandschap"
-      width={1920}
-      height={960}
+      width="1920"
+      height="960"
+      loading="eager"
+      fetchPriority="high"
       className="absolute inset-0 h-full w-full object-cover"
     />
     {/* Dark overlay for text readability */}
