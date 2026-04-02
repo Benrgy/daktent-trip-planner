@@ -37,4 +37,4 @@ Allow: /
 User-agent: Bytespider
 Allow: /
 
-Sitemap: https://dfrfrdrfr.github.io/daktent-trip-planner/sitemap.xml
+Sitemap: https://benrgy.github.io/daktent-trip-planner/sitemap.xml
