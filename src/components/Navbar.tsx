@@ -3,7 +3,7 @@ import { Tent } from "lucide-react";
 const Navbar = () => (
   <header className="sticky top-0 z-50 border-b border-border bg-card/95 backdrop-blur supports-[backdrop-filter]:bg-card/80">
     <div className="container mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
-      <a href="/" className="flex items-center gap-2 font-display text-base font-bold text-foreground">
+      <a href={import.meta.env.BASE_URL} className="flex items-center gap-2 font-display text-base font-bold text-foreground">
         <Tent className="h-5 w-5 text-primary" />
         DaktentTripPlanner
       </a>
