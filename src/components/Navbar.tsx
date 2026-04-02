@@ -5,7 +5,7 @@ const Navbar = () => (
     <div className="container mx-auto flex h-14 max-w-5xl items-center justify-between px-4">
       <a href="/" className="flex items-center gap-2 font-display text-base font-bold text-foreground">
         <Tent className="h-5 w-5 text-primary" />
-        DaktentTrip
+        DaktentTripPlanner
       </a>
       <nav className="hidden items-center gap-6 text-sm text-muted-foreground sm:flex">
         <a href="#wizard" className="transition-colors hover:text-foreground">Route planner</a>

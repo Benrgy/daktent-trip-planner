@@ -68,7 +68,7 @@ const Index = () => {
 
       {/* Footer */}
       <footer className="border-t border-border bg-card py-8 px-4 text-center">
-        <p className="font-display text-sm font-semibold text-foreground">DaktentTrip.nl</p>
+        <p className="font-display text-sm font-semibold text-foreground">DaktentTripplanner.nl</p>
         <p className="mt-1 text-xs text-muted-foreground">© 2026 — Plan je perfecte daktent avontuur</p>
         <p className="mt-2 text-[11px] text-muted-foreground">Wildcamping data is indicatief. Controleer altijd lokale regelgeving.</p>
       </footer>
