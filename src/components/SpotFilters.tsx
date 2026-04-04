@@ -14,6 +14,13 @@ const filters = [
   { id: "DE", label: "Duitsland" },
   { id: "FR", label: "Frankrijk" },
   { id: "SC", label: "Scandinavië" },
+  { id: "ES", label: "Spanje" },
+  { id: "IT", label: "Italië" },
+  { id: "PT", label: "Portugal" },
+  { id: "AT", label: "Oostenrijk" },
+  { id: "CH", label: "Zwitserland" },
+  { id: "HR", label: "Kroatië" },
+  { id: "SI", label: "Slovenië" },
 ];
 
 const SpotFilters = ({ filter, onFilterChange }: Props) => (
