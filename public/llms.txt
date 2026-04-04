@@ -1,13 +1,13 @@
 # DaktentTripPlanner
 
-> Plan je perfecte daktent roadtrip in 3 minuten — kampeerplekken, kosten, weer en inpaklijst in één tool.
+> Plan je perfecte daktent roadtrip in 3 minuten — 40+ kampeerplekken, kosten, weer en inpaklijst in één tool.
 
-DaktentTripPlanner is een gratis, Nederlandstalige web-app voor daktent kampeerders in Nederland en België. De tool helpt gebruikers om snel een complete roadtrip te plannen met interactieve kaart, kostenberekening, weersverwachting en slimme inpakchecklist.
+DaktentTripPlanner is een gratis, Nederlandstalige web-app voor daktent kampeerders. De tool helpt gebruikers om snel een complete roadtrip te plannen met interactieve kaart, kostenberekening, weersverwachting en slimme inpakchecklist.
 
 ## Features
 
 - **Route Planner**: Configureer vertrekplaats, bestemming, reisduur en reisgezelschap.
-- **Kampeerplekken Kaart**: 20+ Europese locaties met filters (gratis/betaald, per land). Inclusief wildcamping regelgeving.
+- **Kampeerplekken Kaart**: 40+ Europese locaties met filters (gratis/betaald, per land). Inclusief wildcamping regelgeving.
 - **Kostenberekening**: Automatische schatting van brandstof, camping, eten en tolkosten per trip.
 - **Weersverwachting**: Actueel weerbericht per bestemming zodat je voorbereid op pad gaat.
 - **Inpakchecklist**: Categorieën: daktent essentials, keuken, kleding, EHBO, documenten.
@@ -16,11 +16,11 @@ DaktentTripPlanner is een gratis, Nederlandstalige web-app voor daktent kampeerd
 
 - Nederlandse en Belgische daktent eigenaren
 - Mensen die overwegen een daktent te kopen
-- Roadtrip enthousiastelingen in de Benelux
+- Roadtrip enthousiastelingen in de Benelux en Europa
 
-## Ondersteunde landen
+## Ondersteunde landen (12)
 
-Nederland, België, Duitsland, Frankrijk, Spanje, Portugal, Italië, Noorwegen, Zweden, Denemarken, Oostenrijk, Zwitserland, Kroatië, Slovenië.
+Nederland, België, Duitsland, Frankrijk, Scandinavië (Noorwegen, Zweden), Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië.
 
 ## Gebruik
 
@@ -32,4 +32,4 @@ Geen account nodig. Volledig gratis.
 
 ## Links
 
-- Website: https://daktenttripplanner.nl/
+- Website: https://benrgy.github.io/daktent-trip-planner/
