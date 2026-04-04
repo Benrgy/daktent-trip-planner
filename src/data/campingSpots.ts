@@ -36,4 +36,40 @@ export const campingSpots: CampingSpot[] = [
   { id: 18, name: "Beierse Alpen Rand", country: "Duitsland", countryCode: "DE", lat: 47.5, lng: 11.1, type: "paid", facilities: ["water", "toilet", "fire"], rating: 4.8, daktentFriendly: true, description: "Camping aan de voet van de Beierse Alpen. Spectaculair bergpanorama.", legalStatus: "Campsite", pricePerNight: 19 },
   { id: 19, name: "Bretagne Kliffen", country: "Frankrijk", countryCode: "FR", lat: 48.6, lng: -3.0, type: "free", facilities: ["water"], rating: 4.4, daktentFriendly: true, description: "Wildcamping op de ruige kliffen van Bretagne. Wind en avontuur.", legalStatus: "Legaal wildcamping", pricePerNight: 0 },
   { id: 20, name: "Noorse Hoogvlakte", country: "Scandinavië", countryCode: "SC", lat: 61.5, lng: 8.3, type: "free", facilities: ["water"], rating: 4.9, daktentFriendly: true, description: "Ultiem wildcamping op de Noorse hoogvlakte. Ongerept en indrukwekkend.", legalStatus: "Legaal wildcamping", pricePerNight: 0 },
+
+  // Spanje
+  { id: 21, name: "Picos de Europa Bergpas", country: "Spanje", countryCode: "ES", lat: 43.2, lng: -4.8, type: "free", facilities: ["water"], rating: 4.6, daktentFriendly: true, description: "Wildcamping in het spectaculaire Picos de Europa gebergte. Ruig en ongerept Noord-Spanje.", legalStatus: "Gedoogd wildcamping", pricePerNight: 0 },
+  { id: 22, name: "Costa Brava Boscamping", country: "Spanje", countryCode: "ES", lat: 41.9, lng: 3.1, type: "paid", facilities: ["water", "toilet", "electricity", "fire"], rating: 4.5, daktentFriendly: true, description: "Schaduwrijke camping tussen pijnbomen, op loopafstand van de Costa Brava stranden.", legalStatus: "Campsite", pricePerNight: 24 },
+  { id: 23, name: "Sierra Nevada Plateau", country: "Spanje", countryCode: "ES", lat: 37.1, lng: -3.4, type: "free", facilities: ["water"], rating: 4.3, daktentFriendly: true, description: "Hooggelegen wildcamping met uitzicht over de Sierra Nevada. Ideaal voor sterren.", legalStatus: "Gedoogd wildcamping", pricePerNight: 0 },
+  { id: 24, name: "Andalusië Olijfgaard", country: "Spanje", countryCode: "ES", lat: 37.8, lng: -3.8, type: "paid", facilities: ["water", "toilet"], rating: 4.4, daktentFriendly: true, description: "Unieke glamping tussen olijfbomen in het hart van Andalusië. Authentiek Spaans.", legalStatus: "Campsite", pricePerNight: 18 },
+
+  // Italië
+  { id: 25, name: "Dolomieten Bergweide", country: "Italië", countryCode: "IT", lat: 46.4, lng: 11.8, type: "free", facilities: ["water"], rating: 4.8, daktentFriendly: true, description: "Adembenemende alpenweiden in de Dolomieten. Onvergetelijk panorama bij zonsopgang.", legalStatus: "Gedoogd wildcamping", pricePerNight: 0 },
+  { id: 26, name: "Toscane Wijncamping", country: "Italië", countryCode: "IT", lat: 43.3, lng: 11.3, type: "paid", facilities: ["water", "toilet", "electricity", "fire"], rating: 4.9, daktentFriendly: true, description: "Agriturismo-camping tussen de Toscaanse heuvels en wijngaarden. La dolce vita.", legalStatus: "Campsite", pricePerNight: 26 },
+  { id: 27, name: "Sardinië Kustspot", country: "Italië", countryCode: "IT", lat: 40.9, lng: 9.5, type: "free", facilities: ["water"], rating: 4.5, daktentFriendly: true, description: "Verborgen kustplek op Sardinië met turquoise water. Paradijselijk wildcamping.", legalStatus: "Gedoogd wildcamping", pricePerNight: 0 },
+  { id: 28, name: "Gardameer Olijfcamping", country: "Italië", countryCode: "IT", lat: 45.6, lng: 10.6, type: "paid", facilities: ["water", "toilet", "electricity"], rating: 4.6, daktentFriendly: true, description: "Terrassencamping met uitzicht over het Gardameer. Perfecte mix van bergen en meer.", legalStatus: "Campsite", pricePerNight: 28 },
+
+  // Portugal
+  { id: 29, name: "Algarve Kliffenrand", country: "Portugal", countryCode: "PT", lat: 37.1, lng: -8.7, type: "free", facilities: ["water"], rating: 4.7, daktentFriendly: true, description: "Spectaculaire wildcamping op de kliffen van de Algarve. Epische zonsondergangen.", legalStatus: "Gedoogd wildcamping", pricePerNight: 0 },
+  { id: 30, name: "Alentejo Kurkeikenbos", country: "Portugal", countryCode: "PT", lat: 38.5, lng: -7.9, type: "paid", facilities: ["water", "toilet", "fire"], rating: 4.4, daktentFriendly: true, description: "Rustige camping onder kurkeiken in het ongerepte Alentejo. Authentiek Portugal.", legalStatus: "Campsite", pricePerNight: 15 },
+  { id: 31, name: "Peneda-Gerês Nationaal Park", country: "Portugal", countryCode: "PT", lat: 41.7, lng: -8.1, type: "free", facilities: ["water", "toilet"], rating: 4.6, daktentFriendly: true, description: "Wildcamping in Portugal's enige nationaal park. Watervallen, graniet en groene valleien.", legalStatus: "Gedoogd wildcamping", pricePerNight: 0 },
+
+  // Oostenrijk
+  { id: 32, name: "Tiroolse Alpenweide", country: "Oostenrijk", countryCode: "AT", lat: 47.3, lng: 11.4, type: "paid", facilities: ["water", "toilet", "electricity"], rating: 4.7, daktentFriendly: true, description: "Camping op een alpenweide in Tirol. Berglucht, koeien en imposante toppen.", legalStatus: "Campsite", pricePerNight: 22 },
+  { id: 33, name: "Wachau Donau-oever", country: "Oostenrijk", countryCode: "AT", lat: 48.4, lng: 15.4, type: "paid", facilities: ["water", "toilet", "fire"], rating: 4.5, daktentFriendly: true, description: "Camping langs de Donau in de Wachau-vallei. Wijnproeverijen en fietspaden.", legalStatus: "Campsite", pricePerNight: 20 },
+
+  // Zwitserland
+  { id: 34, name: "Berner Oberland Uitzichtpunt", country: "Zwitserland", countryCode: "CH", lat: 46.7, lng: 7.9, type: "paid", facilities: ["water", "toilet", "electricity"], rating: 4.9, daktentFriendly: true, description: "Camping met uitzicht op Eiger, Mönch en Jungfrau. Duurder maar onvergetelijk.", legalStatus: "Campsite", pricePerNight: 35 },
+  { id: 35, name: "Vierwoudstrekenmeer", country: "Zwitserland", countryCode: "CH", lat: 47.0, lng: 8.4, type: "paid", facilities: ["water", "toilet"], rating: 4.6, daktentFriendly: true, description: "Idyllische camping aan het meer van Luzern. Berglandschap op z'n Zwitsers.", legalStatus: "Campsite", pricePerNight: 32 },
+
+  // Extra Nederland
+  { id: 36, name: "Friese Meren Oever", country: "Nederland", countryCode: "NL", lat: 52.9, lng: 5.7, type: "paid", facilities: ["water", "toilet", "electricity"], rating: 4.3, daktentFriendly: true, description: "Rustige camping aan de Friese meren. Zeilen, vissen en daktent kamperen.", legalStatus: "Campsite", pricePerNight: 19 },
+  { id: 37, name: "Limburg Mergelland", country: "Nederland", countryCode: "NL", lat: 50.8, lng: 5.8, type: "paid", facilities: ["water", "toilet", "fire"], rating: 4.4, daktentFriendly: true, description: "Heuvelachtige camping in Zuid-Limburg. Wijnroutes en vakwerkhuis dorpjes.", legalStatus: "Campsite", pricePerNight: 20 },
+
+  // Kroatië
+  { id: 38, name: "Istrië Olijfterras", country: "Kroatië", countryCode: "HR", lat: 45.2, lng: 13.9, type: "paid", facilities: ["water", "toilet", "electricity"], rating: 4.6, daktentFriendly: true, description: "Terrassencamping met zeezicht in Istrië. Truffel, wijn en kristalhelder water.", legalStatus: "Campsite", pricePerNight: 22 },
+  { id: 39, name: "Plitvice Bosrand", country: "Kroatië", countryCode: "HR", lat: 44.9, lng: 15.6, type: "paid", facilities: ["water", "toilet"], rating: 4.5, daktentFriendly: true, description: "Camping nabij de Plitvice meren. Watervallen en oeroude bossen op loopafstand.", legalStatus: "Campsite", pricePerNight: 18 },
+
+  // Slovenië
+  { id: 40, name: "Soča Vallei Rivier", country: "Slovenië", countryCode: "SI", lat: 46.3, lng: 13.6, type: "paid", facilities: ["water", "toilet", "fire"], rating: 4.8, daktentFriendly: true, description: "Camping aan de smaragdgroene Soča rivier. Rafting, kayak en alpine rust.", legalStatus: "Campsite", pricePerNight: 20 },
 ];
