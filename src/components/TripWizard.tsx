@@ -77,6 +77,13 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                   <SelectItem value="DE">Duitsland</SelectItem>
                   <SelectItem value="FR">Frankrijk</SelectItem>
                   <SelectItem value="SC">Scandinavië</SelectItem>
+                  <SelectItem value="ES">Spanje</SelectItem>
+                  <SelectItem value="IT">Italië</SelectItem>
+                  <SelectItem value="PT">Portugal</SelectItem>
+                  <SelectItem value="AT">Oostenrijk</SelectItem>
+                  <SelectItem value="CH">Zwitserland</SelectItem>
+                  <SelectItem value="HR">Kroatië</SelectItem>
+                  <SelectItem value="SI">Slovenië</SelectItem>
                 </SelectContent>
               </Select>
             </div>
