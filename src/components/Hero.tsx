@@ -48,7 +48,7 @@ const Hero = ({ onStart }: HeroProps) => (
     <div className="relative border-t border-primary-foreground/10 bg-foreground/40 backdrop-blur-sm">
       <div className="container mx-auto flex max-w-5xl flex-wrap items-center gap-8 px-4 py-3.5 text-xs text-primary-foreground/70">
         <div className="flex items-center gap-2"><Clock className="h-4 w-4" /> Klaar in 3 minuten</div>
-        <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> 20+ kampeerplekken</div>
+        <div className="flex items-center gap-2"><MapPin className="h-4 w-4" /> 40+ kampeerplekken</div>
         <div className="flex items-center gap-2"><Shield className="h-4 w-4" /> Wildcamping regelgeving per land</div>
       </div>
     </div>

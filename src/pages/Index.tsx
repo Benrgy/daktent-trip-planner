@@ -87,7 +87,7 @@ const Index = () => {
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
               <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Welke landen en kampeerplekken worden ondersteund?</summary>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We hebben 20+ kampeerplekken in Nederland, België, Duitsland, Frankrijk, Spanje, Italië, Noorwegen, Zweden en meer. Elke locatie bevat info over wildcamping regelgeving, voorzieningen en kosten.</p>
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We hebben 40+ kampeerplekken in Nederland, België, Duitsland, Frankrijk, Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië, Noorwegen en Zweden. Elke locatie bevat info over wildcamping regelgeving, voorzieningen en kosten.</p>
               </div>
             </details>
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
