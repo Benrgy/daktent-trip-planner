@@ -98,9 +98,6 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
         <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 3</div>
         <div className="flex items-center justify-between mb-1">
           <h2 className="font-display text-2xl font-bold text-foreground">Kostenberekening</h2>
-          <Button variant="ghost" size="sm" onClick={handlePrint} className="gap-1.5 text-xs print:hidden">
-            <Printer className="h-3.5 w-3.5" /> Print
-          </Button>
         </div>
         <p className="mb-8 text-sm text-muted-foreground">
           Geschatte kosten voor een {config.days}-daagse trip met {config.people} {config.people === 1 ? "persoon" : "personen"}
