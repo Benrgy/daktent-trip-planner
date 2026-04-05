@@ -8,12 +8,32 @@ interface Props {
   destinations?: string[];
 }
 
-const PackingChecklist = ({ destination }: Props) => {
+const PackingChecklist = ({ destination, destinations }: Props) => {
   const currentMonth = new Date().getMonth() + 1;
-  const categories = useMemo(
-    () => getFilteredPackingCategories(destination, currentMonth),
-    [destination, currentMonth]
-  );
+  const allDests = destinations?.length ? destinations : (destination ? [destination] : []);
+
+  // Merge packing items across all destinations
+  const categories = useMemo(() => {
+    if (allDests.length <= 1) {
+      return getFilteredPackingCategories(allDests[0], currentMonth);
+    }
+    // Merge: get items for each destination and combine
+    const merged: Record<string, any[]> = {};
+    const seenIds = new Set<string>();
+    for (const dest of allDests) {
+      const cats = getFilteredPackingCategories(dest, currentMonth);
+      for (const [cat, items] of Object.entries(cats)) {
+        if (!merged[cat]) merged[cat] = [];
+        for (const item of items) {
+          if (!seenIds.has(item.id)) {
+            seenIds.add(item.id);
+            merged[cat].push(item);
+          }
+        }
+      }
+    }
+    return merged;
+  }, [allDests.join(","), currentMonth]);
 
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(Object.keys(categories)));
