@@ -57,4 +57,17 @@ describe("CostCalculator", () => {
     render(<CostCalculator config={evConfig} spots={campingSpots.filter(s => s.countryCode === "NL")} />);
     expect(screen.getByText("Opladen")).toBeInTheDocument();
   });
+
+  it("shows ferry cost for UK destination", () => {
+    const gbConfig = { ...mockConfig, destination: "GB" };
+    render(<CostCalculator config={gbConfig} spots={campingSpots.filter(s => s.countryCode === "GB")} />);
+    expect(screen.getByText("Kanaaltunnel / Veerboot")).toBeInTheDocument();
+    expect(screen.getByText(/€180/)).toBeInTheDocument();
+  });
+
+  it("shows ferry cost for Scandinavia", () => {
+    const scConfig = { ...mockConfig, destination: "SC" };
+    render(<CostCalculator config={scConfig} spots={campingSpots.filter(s => s.countryCode === "SC")} />);
+    expect(screen.getByText("Veerboot Scandinavië")).toBeInTheDocument();
+  });
 });
