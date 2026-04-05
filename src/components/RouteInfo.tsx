@@ -87,7 +87,7 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
           </div>
           <div>
             <Car className="mx-auto mb-1 h-4 w-4 text-primary" />
-            <p className="text-lg font-bold text-foreground">€{Math.round((route.distanceKm / 100) * ({ small: 6, medium: 8, suv: 10, "4x4": 12 }[config.carType] || 8) * (config.fuelType === "diesel" ? getFuelPrices(config.destination).diesel : getFuelPrices(config.destination).benzine))}</p>
+            <p className="text-lg font-bold text-foreground">€{Math.round((route.distanceKm / 100) * ({ small: 6, medium: 8, suv: 10, "4x4": 12 }[config.carType] || 8) * (config.fuelType === "diesel" ? getFuelPrices(config.destination).diesel : config.fuelType === "lpg" ? getFuelPrices(config.destination).lpg : getFuelPrices(config.destination).benzine))}</p>
             <p className="text-[11px] text-muted-foreground">Brandstof</p>
           </div>
         </div>
