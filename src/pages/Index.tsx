@@ -15,7 +15,7 @@ import { campingSpots, CampingSpot } from "@/data/campingSpots";
 import { fetchOsmCampingSites } from "@/services/overpass";
 import { RouteResult } from "@/services/routing";
 import { useFavorites } from "@/hooks/useFavorites";
-import { saveTripToStorage, loadTripFromStorage, decodeTripFromUrl } from "@/hooks/useSavedTrip";
+import { saveTripToStorage, decodeTripFromUrl } from "@/hooks/useSavedTrip";
 
 const Index = () => {
   const [tripConfig, setTripConfig] = useState<TripConfig | null>(null);
@@ -23,23 +23,21 @@ const Index = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [osmSpots, setOsmSpots] = useState<CampingSpot[]>([]);
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
-  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+  const { favorites, toggleFavorite } = useFavorites();
 
-  // Load trip from URL or localStorage on mount
   useEffect(() => {
     const urlTrip = decodeTripFromUrl();
     if (urlTrip) {
+      if (!urlTrip.destinations) urlTrip.destinations = urlTrip.destination ? [urlTrip.destination] : [];
       setTripConfig(urlTrip);
-      setFilter(urlTrip.destination || "all");
+      setFilter(urlTrip.destinations[0] || "all");
       setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 300);
-      return;
     }
-    // Don't auto-load from localStorage — just keep it for next visit
   }, []);
 
   const handleGenerate = (config: TripConfig) => {
     setTripConfig(config);
-    setFilter(config.destination || "all");
+    setFilter(config.destinations?.[0] || config.destination || "all");
     saveTripToStorage(config);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
@@ -48,16 +46,19 @@ const Index = () => {
     document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
   };
 
+  const destinations = tripConfig?.destinations?.length ? tripConfig.destinations : (tripConfig?.destination ? [tripConfig.destination] : []);
+
   useEffect(() => {
-    if (!tripConfig?.destination) return;
+    if (destinations.length === 0) return;
     const existingIds = new Set(campingSpots.map(s => s.id));
-    fetchOsmCampingSites(tripConfig.destination, existingIds).then(setOsmSpots);
-  }, [tripConfig?.destination]);
+    Promise.all(destinations.map(d => fetchOsmCampingSites(d, existingIds)))
+      .then(results => setOsmSpots(results.flat()));
+  }, [destinations.join(",")]);
 
   const allSpots = [...campingSpots, ...osmSpots];
 
   const filteredSpots = allSpots.filter(s => {
-    if (filter === "all") return true;
+    if (filter === "all") return destinations.length === 0 || destinations.includes(s.countryCode);
     if (filter === "free") return s.type === "free";
     if (filter === "paid") return s.type === "paid";
     if (filter === "favorites") return favorites.has(s.id);
@@ -74,56 +75,48 @@ const Index = () => {
       <div ref={resultsRef}>
         {tripConfig && (
           <>
-            {/* Trip summary bar */}
             <section className="border-b border-border py-4 px-4 print:hidden">
               <div className="container mx-auto max-w-3xl">
                 <TripSummary config={tripConfig} routeResult={routeResult} />
               </div>
             </section>
 
-            {/* Route info */}
             <section className="border-b border-border py-8 px-4">
               <div className="container mx-auto max-w-3xl">
                 <RouteInfo config={tripConfig} onRouteCalculated={setRouteResult} />
               </div>
             </section>
 
-            {/* Country info */}
             <section className="border-b border-border py-8 px-4">
-              <div className="container mx-auto max-w-3xl">
-                <CountryInfo countryCode={tripConfig.destination} />
+              <div className="container mx-auto max-w-3xl space-y-3">
+                {destinations.map(dest => (
+                  <CountryInfo key={dest} countryCode={dest} />
+                ))}
               </div>
             </section>
 
-            {/* Map section */}
             <section id="spots" className="border-b border-border bg-muted/30 py-16 px-4">
               <div className="container mx-auto max-w-3xl">
                 <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 2</div>
                 <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Kampeerplekken</h2>
                 <p className="mb-6 text-sm text-muted-foreground">
-                  {filteredSpots.length} locaties gevonden{osmSpots.length > 0 ? ` (waarvan ${osmSpots.filter(s => filter === "all" || s.countryCode === filter || (filter === "free" && s.type === "free") || (filter === "paid" && s.type === "paid")).length} via OpenStreetMap)` : ""} — klik op een marker voor details.
+                  {filteredSpots.length} locaties gevonden — klik op een marker voor details.
                 </p>
                 <div className="mb-4">
                   <SpotFilters filter={filter} onFilterChange={setFilter} />
                 </div>
-                <CampingMap
-                  spots={filteredSpots}
-                  routeGeometry={routeResult?.geometry}
-                  favorites={favorites}
-                  onToggleFavorite={toggleFavorite}
-                />
+                <CampingMap spots={filteredSpots} routeGeometry={routeResult?.geometry} favorites={favorites} onToggleFavorite={toggleFavorite} />
               </div>
             </section>
 
             <CostCalculator config={tripConfig} spots={filteredSpots} realDistanceKm={routeResult?.distanceKm} />
             <WeatherDashboard config={tripConfig} />
-            <PackingChecklist destination={tripConfig.destination} />
+            <PackingChecklist destination={tripConfig.destination} destinations={tripConfig.destinations} />
             <AffiliateCTA />
           </>
         )}
       </div>
 
-      {/* FAQ Section */}
       <section id="faq" className="border-t border-border bg-muted/20 py-16 px-4">
         <div className="container mx-auto max-w-3xl">
           <h2 className="mb-8 font-display text-2xl font-bold text-foreground">Veelgestelde vragen</h2>
@@ -135,21 +128,21 @@ const Index = () => {
               </div>
             </details>
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Is DaktentTripPlanner gratis te gebruiken?</summary>
+              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Kan ik meerdere bestemmingen plannen?</summary>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Ja, DaktentTripPlanner is 100% gratis. Je hebt geen account nodig — vul gewoon je trip details in en ontvang direct een compleet reisplan.</p>
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Ja! Je kunt meerdere landen toevoegen als stops op je route. De tool berekent automatisch de totale afstand, kosten en reistijd voor je complete multi-stop roadtrip.</p>
               </div>
             </details>
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Welke landen en kampeerplekken worden ondersteund?</summary>
+              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Welke landen worden ondersteund?</summary>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We hebben 45+ kampeerplekken in Nederland, België, Duitsland, Frankrijk, Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië, Noorwegen, Zweden, Engeland en Griekenland. Elke locatie bevat info over wildcamping regelgeving, voorzieningen en kosten.</p>
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We ondersteunen 14 bestemmingen: Nederland, België, Duitsland, Frankrijk, Scandinavië, Engeland, Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië en Griekenland.</p>
               </div>
             </details>
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
               <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Hoe plan ik een daktent roadtrip?</summary>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Vul je vertrekplaats, bestemming, reisduur en aantal personen in. Klik op 'Genereer route' en je krijgt direct een overzicht met kampeerplekken op de kaart, een kostenoverzicht, weersverwachting en inpakchecklist.</p>
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Vul je vertrekplaats in, voeg één of meerdere bestemmingen toe, stel reisduur en aantal personen in. Klik op 'Genereer route' voor een compleet overzicht met kaart, kosten, weer en paklijst.</p>
               </div>
             </details>
           </div>

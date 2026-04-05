@@ -8,15 +8,14 @@ import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
 import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Ship } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
-import { Button } from "@/components/ui/button";
 
 const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200, GR: 250 };
 
 /** Vignette prices per country (EUR) */
 const vignetPrices: Record<string, { price: number; label: string }> = {
-  CH: { price: 42, label: "Vignet (jaar)" },
-  AT: { price: 10, label: "Vignet (10-dagen)" },
-  SI: { price: 15, label: "Vignet (7-dagen)" },
+  CH: { price: 42, label: "Vignet CH (jaar)" },
+  AT: { price: 10, label: "Vignet AT (10-dagen)" },
+  SI: { price: 15, label: "Vignet SI (7-dagen)" },
 };
 
 /** Ferry/tunnel costs per country (EUR, return price) */
@@ -38,20 +37,23 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
   const [localCampingPrice, setLocalCampingPrice] = useState<number | null>(config.customCampingPrice);
   const [localFoodBudget, setLocalFoodBudget] = useState<number | null>(config.customFoodBudget);
 
+  const destinations = config.destinations?.length > 0 ? config.destinations : (config.destination ? [config.destination] : []);
+  const primaryDest = destinations[0] || "NL";
+
   const multiplier = config.includeReturnTrip ? 2 : 1;
-  const distPerDay = avgDistPerDay[config.destination] || 150;
+  const distPerDay = avgDistPerDay[primaryDest] || 150;
   const singleKm = realDistanceKm ?? (distPerDay * config.days);
   const totalKm = singleKm * multiplier;
 
-  const prices = getFuelPrices(config.destination);
-  const elPriceDefault = getElectricityPrice(config.destination);
+  const prices = getFuelPrices(primaryDest);
+  const elPriceDefault = getElectricityPrice(primaryDest);
   const electric = isElectric(config.carType);
   const phev = isPhev(config.carType);
 
   const defaultFuelPrice = config.fuelType === "diesel" ? prices.diesel : config.fuelType === "lpg" ? prices.lpg : prices.benzine;
 
   const energy = calculateEnergyCost(
-    totalKm, config.carType, config.fuelType, config.destination,
+    totalKm, config.carType, config.fuelType, primaryDest,
     config.customConsumption, localFuelPrice, localElPrice
   );
   const fuelCost = energy.cost;
@@ -61,13 +63,38 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     : 12;
   const campingCost = Math.round((localCampingPrice ?? avgCampCost) * config.days);
   const foodCost = Math.round(config.people * config.days * (localFoodBudget ?? 25));
-  const countryInfo = getCountryData(config.destination);
-  const tollPerKm = countryInfo?.tollPerKm ?? 0;
-  const tollCost = tollPerKm > 0 ? Math.round(totalKm * tollPerKm) : 0;
-  const vignet = vignetPrices[config.destination];
-  const vignetCost = vignet ? vignet.price : 0;
-  const ferry = ferryCosts[config.destination];
-  const ferryCost = ferry ? ferry.price : 0;
+
+  // Aggregate tolls across all destinations
+  let tollCost = 0;
+  for (const dest of destinations) {
+    const info = getCountryData(dest);
+    if (info && info.tollPerKm > 0) {
+      tollCost += Math.round((totalKm / destinations.length) * info.tollPerKm);
+    }
+  }
+
+  // Aggregate vignettes across all destinations
+  let vignetCost = 0;
+  const vignetItems: { label: string; price: number }[] = [];
+  for (const dest of destinations) {
+    const v = vignetPrices[dest];
+    if (v) {
+      vignetCost += v.price;
+      vignetItems.push(v);
+    }
+  }
+
+  // Aggregate ferries across all destinations
+  let ferryCost = 0;
+  const ferryItems: { label: string; price: number; description: string }[] = [];
+  for (const dest of destinations) {
+    const f = ferryCosts[dest];
+    if (f) {
+      ferryCost += f.price;
+      ferryItems.push(f);
+    }
+  }
+
   const totalCost = fuelCost + campingCost + foodCost + tollCost + vignetCost + ferryCost;
   const hotelEquiv = config.days * config.people * 85;
   const savings = hotelEquiv - totalCost;
@@ -78,9 +105,9 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     { name: energyLabel, value: fuelCost, color: electric || phev ? "hsl(142, 60%, 45%)" : "hsl(222, 47%, 31%)" },
     { name: "Camping", value: campingCost, color: "hsl(152, 44%, 42%)" },
     { name: "Eten", value: foodCost, color: "hsl(32, 95%, 44%)" },
-    { name: "Tol", value: tollCost, color: "hsl(220, 9%, 46%)" },
-    ...(vignetCost > 0 ? [{ name: vignet!.label, value: vignetCost, color: "hsl(280, 40%, 50%)" }] : []),
-    ...(ferryCost > 0 ? [{ name: ferry!.label, value: ferryCost, color: "hsl(200, 60%, 45%)" }] : []),
+    ...(tollCost > 0 ? [{ name: "Tol", value: tollCost, color: "hsl(220, 9%, 46%)" }] : []),
+    ...vignetItems.map((v, i) => ({ name: v.label, value: v.price, color: `hsl(${280 + i * 20}, 40%, 50%)` })),
+    ...ferryItems.map((f, i) => ({ name: f.label, value: f.price, color: `hsl(${200 + i * 30}, 60%, 45%)` })),
   ];
 
   const resetPrices = () => {
@@ -89,8 +116,6 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     setLocalCampingPrice(null);
     setLocalFoodBudget(null);
   };
-
-  
 
   return (
     <section id="kosten" className="border-b border-border py-16 px-4 print:border-none print:py-4">
@@ -101,6 +126,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
         </div>
         <p className="mb-8 text-sm text-muted-foreground">
           Geschatte kosten voor een {config.days}-daagse trip met {config.people} {config.people === 1 ? "persoon" : "personen"}
+          {destinations.length > 1 ? ` (${destinations.length} bestemmingen)` : ""}
           {config.includeReturnTrip ? " (heen + terug)" : " (enkele reis)"}.
         </p>
 
@@ -199,8 +225,8 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
         </div>
 
         {/* Ferry/tunnel info */}
-        {ferry && (
-          <div className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
+        {ferryItems.map((ferry, i) => (
+          <div key={i} className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
             <div className="flex items-center gap-2 mb-1">
               <Ship className="h-4 w-4 text-primary" />
               <h3 className="text-sm font-semibold text-foreground">{ferry.label}</h3>
@@ -208,7 +234,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
             <p className="text-sm text-muted-foreground">{ferry.description}</p>
             <p className="mt-1 text-xs font-medium text-foreground">€{ferry.price} (geschat gemiddelde)</p>
           </div>
-        )}
+        ))}
 
         {/* Adjustable prices panel */}
         <Collapsible open={priceOpen} onOpenChange={setPriceOpen} className="mt-4 print:hidden">
@@ -221,7 +247,6 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
           </CollapsibleTrigger>
           <CollapsibleContent className="mt-2 rounded-lg border border-border bg-card p-4 shadow-card">
             <div className="grid gap-4 sm:grid-cols-2">
-              {/* Fuel / electricity price */}
               {(electric || phev) ? (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">Stroomprijs (€/kWh)</label>
@@ -240,7 +265,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
               {!electric ? (
                 <div>
                   <label className="text-xs font-medium text-muted-foreground">
-                    {electric ? "" : `${config.fuelType === "diesel" ? "Diesel" : config.fuelType === "lpg" ? "LPG" : "Benzine"}prijs (€/L)`}
+                    {`${config.fuelType === "diesel" ? "Diesel" : config.fuelType === "lpg" ? "LPG" : "Benzine"}prijs (€/L)`}
                   </label>
                   <Input
                     type="number" min={0.30} max={5} step={0.01}
@@ -255,7 +280,6 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
                 </div>
               ) : null}
 
-              {/* Camping price */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Campingprijs (€/nacht)</label>
                 <Input
@@ -270,7 +294,6 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
                 />
               </div>
 
-              {/* Food budget */}
               <div>
                 <label className="text-xs font-medium text-muted-foreground">Eetbudget (€/persoon/dag)</label>
                 <Input

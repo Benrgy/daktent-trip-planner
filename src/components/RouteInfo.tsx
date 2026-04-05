@@ -4,7 +4,7 @@ import { geocode } from "@/services/geocoding";
 import { getRoute, formatDuration, RouteResult } from "@/services/routing";
 import { calculateEnergyCost, isElectric, isPhev, hasElectricMotor, getElectricConsumptionRate } from "@/services/energyCost";
 import { campingSpots } from "@/data/campingSpots";
-import { Car, Clock, MapPin, Loader2, Zap, BatteryCharging, Bike, ArrowLeftRight, Coffee } from "lucide-react";
+import { Car, Clock, MapPin, Loader2, Zap, BatteryCharging, Bike, ArrowLeftRight, Coffee, Navigation } from "lucide-react";
 
 const CHARGE_TIME_MIN = 30;
 
@@ -22,6 +22,13 @@ function getArrivalTime(departureTime: string, durationMinutes: number): string 
   return `${String(arrH).padStart(2, "0")}:${String(arrM).padStart(2, "0")}${nextDay ? " (+1 dag)" : ""}`;
 }
 
+const destLabels: Record<string, string> = {
+  NL: "Nederland", BE: "België", DE: "Duitsland", FR: "Frankrijk",
+  SC: "Scandinavië", GB: "Engeland", ES: "Spanje", IT: "Italië",
+  PT: "Portugal", AT: "Oostenrijk", CH: "Zwitserland", HR: "Kroatië",
+  SI: "Slovenië", GR: "Griekenland",
+};
+
 interface Props {
   config: TripConfig;
   onRouteCalculated?: (route: RouteResult | null) => void;
@@ -32,10 +39,12 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const destinations = config.destinations?.length > 0 ? config.destinations : (config.destination ? [config.destination] : []);
   const multiplier = config.includeReturnTrip ? 2 : 1;
+  const isMultiStop = destinations.length > 1;
 
   useEffect(() => {
-    if (!config.startLocation || !config.destination) return;
+    if (!config.startLocation || destinations.length === 0) return;
 
     const calc = async () => {
       setLoading(true);
@@ -49,15 +58,27 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
         return;
       }
 
-      const spot = campingSpots.find(s => s.countryCode === config.destination);
-      if (!spot) {
-        setError("Geen kampeerplekken voor deze bestemming.");
+      // Get coordinates for each destination
+      const destCoords: [number, number][] = [];
+      for (const dest of destinations) {
+        const spot = campingSpots.find(s => s.countryCode === dest);
+        if (spot) {
+          destCoords.push([spot.lat, spot.lng]);
+        }
+      }
+
+      if (destCoords.length === 0) {
+        setError("Geen kampeerplekken gevonden voor de gekozen bestemmingen.");
         setLoading(false);
         onRouteCalculated?.(null);
         return;
       }
 
-      const result = await getRoute(startCoords, [spot.lat, spot.lng]);
+      // Final destination is the last one, intermediates are waypoints
+      const finalDest = destCoords[destCoords.length - 1];
+      const waypoints = destCoords.slice(0, -1);
+
+      const result = await getRoute(startCoords, finalDest, waypoints.length > 0 ? waypoints : undefined);
       if (!result) {
         setError("Route kon niet berekend worden.");
         setLoading(false);
@@ -71,20 +92,26 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
     };
 
     calc();
-  }, [config.startLocation, config.destination]);
+  }, [config.startLocation, destinations.join(",")]);
 
-  if (!config.startLocation || !config.destination) return null;
+  if (!config.startLocation || destinations.length === 0) return null;
 
   const electric = isElectric(config.carType);
   const phev = isPhev(config.carType);
   const hasEv = hasElectricMotor(config.carType);
   const isMoto = config.carType === "motorcycle";
   const VehicleIcon = isMoto ? Bike : Car;
+  const primaryDest = destinations[0];
 
   return (
     <div className="rounded-lg border border-border bg-card p-4 shadow-card">
       <h3 className="mb-3 text-sm font-semibold text-foreground flex items-center gap-2">
         <VehicleIcon className="h-4 w-4 text-primary" /> Route-informatie
+        {isMultiStop && (
+          <span className="flex items-center gap-1 text-[10px] font-normal text-primary">
+            <Navigation className="h-3 w-3" /> {destinations.length} stops
+          </span>
+        )}
         {config.includeReturnTrip && (
           <span className="flex items-center gap-1 text-[10px] font-normal text-primary">
             <ArrowLeftRight className="h-3 w-3" /> Retour
@@ -92,6 +119,29 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
         )}
         <span className="text-[10px] font-normal text-muted-foreground ml-auto">via OSRM</span>
       </h3>
+
+      {/* Multi-stop route overview */}
+      {isMultiStop && (
+        <div className="mb-3 rounded-md bg-muted/50 px-3 py-2">
+          <div className="flex items-center gap-1 text-[11px] text-muted-foreground flex-wrap">
+            <span className="font-medium text-foreground">{config.startLocation}</span>
+            {destinations.map((dest, i) => (
+              <span key={dest} className="flex items-center gap-1">
+                <span className="text-primary">→</span>
+                <span className={i === destinations.length - 1 ? "font-medium text-foreground" : ""}>
+                  {destLabels[dest] || dest}
+                </span>
+              </span>
+            ))}
+            {config.includeReturnTrip && (
+              <>
+                <span className="text-primary">→</span>
+                <span className="font-medium text-foreground">{config.startLocation}</span>
+              </>
+            )}
+          </div>
+        </div>
+      )}
 
       {loading && (
         <div className="flex items-center gap-2 text-sm text-muted-foreground">
@@ -113,7 +163,7 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
               <div>
                 <MapPin className="mx-auto mb-1 h-4 w-4 text-primary" />
                 <p className="text-lg font-bold text-foreground">{displayKm} km</p>
-                <p className="text-[11px] text-muted-foreground">{config.includeReturnTrip ? "Retour" : "Afstand"}</p>
+                <p className="text-[11px] text-muted-foreground">{config.includeReturnTrip ? "Retour" : "Totaal"}</p>
               </div>
               <div>
                 <Clock className="mx-auto mb-1 h-4 w-4 text-primary" />
@@ -126,7 +176,7 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
                 ) : (
                   <VehicleIcon className="mx-auto mb-1 h-4 w-4 text-primary" />
                 )}
-                <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(displayKm, config.carType, config.fuelType, config.destination, config.customConsumption).cost}</p>
+                <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(displayKm, config.carType, config.fuelType, primaryDest, config.customConsumption).cost}</p>
                 <p className="text-[11px] text-muted-foreground">{electric ? "Opladen" : phev ? "Brandstof+Stroom" : "Brandstof"}</p>
               </div>
               {hasEv && (() => {
@@ -141,6 +191,28 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
                 );
               })()}
             </div>
+
+            {/* Per-leg breakdown for multi-stop */}
+            {isMultiStop && route.legs && route.legs.length > 0 && (
+              <div className="mt-3 space-y-1">
+                {route.legs.map((leg, i) => {
+                  const fromLabel = i === 0 ? config.startLocation : (destLabels[destinations[i - 1]] || destinations[i - 1]);
+                  const toLabel = destLabels[destinations[i]] || destinations[i] || "Bestemming";
+                  return (
+                    <div key={i} className="flex items-center justify-between rounded-md bg-muted/30 px-3 py-1.5 text-[11px]">
+                      <span className="text-muted-foreground">
+                        <span className="font-medium text-foreground">{fromLabel}</span>
+                        {" → "}
+                        <span className="font-medium text-foreground">{toLabel}</span>
+                      </span>
+                      <span className="text-muted-foreground">
+                        {leg.distanceKm} km · {formatDuration(leg.durationMinutes)}
+                      </span>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
 
             {/* Arrival time */}
             {config.departureTime && (

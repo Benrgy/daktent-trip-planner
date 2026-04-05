@@ -6,6 +6,7 @@ import { campingSpots } from "@/data/campingSpots";
 const mockConfig = {
   startLocation: "Amsterdam",
   destination: "NL",
+  destinations: ["NL"],
   days: 5,
   budget: 100,
   carType: "suv", fuelType: "benzine" as const, batteryKwh: 60,

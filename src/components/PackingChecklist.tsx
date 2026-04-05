@@ -5,14 +5,35 @@ import { ChevronDown, ChevronUp, Check } from "lucide-react";
 
 interface Props {
   destination?: string;
+  destinations?: string[];
 }
 
-const PackingChecklist = ({ destination }: Props) => {
+const PackingChecklist = ({ destination, destinations }: Props) => {
   const currentMonth = new Date().getMonth() + 1;
-  const categories = useMemo(
-    () => getFilteredPackingCategories(destination, currentMonth),
-    [destination, currentMonth]
-  );
+  const allDests = destinations?.length ? destinations : (destination ? [destination] : []);
+
+  // Merge packing items across all destinations
+  const categories = useMemo(() => {
+    if (allDests.length <= 1) {
+      return getFilteredPackingCategories(allDests[0], currentMonth);
+    }
+    // Merge: get items for each destination and combine
+    const merged: Record<string, any[]> = {};
+    const seenIds = new Set<string>();
+    for (const dest of allDests) {
+      const cats = getFilteredPackingCategories(dest, currentMonth);
+      for (const [cat, items] of Object.entries(cats)) {
+        if (!merged[cat]) merged[cat] = [];
+        for (const item of items) {
+          if (!seenIds.has(item.id)) {
+            seenIds.add(item.id);
+            merged[cat].push(item);
+          }
+        }
+      }
+    }
+    return merged;
+  }, [allDests.join(","), currentMonth]);
 
   const [checked, setChecked] = useState<Set<string>>(new Set());
   const [openSections, setOpenSections] = useState<Set<string>>(new Set(Object.keys(categories)));
@@ -42,7 +63,7 @@ const PackingChecklist = ({ destination }: Props) => {
         <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 5</div>
         <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Paklijst</h2>
         <p className="mb-6 text-sm text-muted-foreground">
-          Automatisch samengesteld op basis van seizoen{destination ? " en bestemming" : ""} — vink af wat je hebt ingepakt.
+          Automatisch samengesteld op basis van seizoen{allDests.length > 0 ? " en bestemming" + (allDests.length > 1 ? "en" : "") : ""} — vink af wat je hebt ingepakt.
         </p>
 
         {/* Progress */}
