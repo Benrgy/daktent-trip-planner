@@ -64,6 +64,7 @@ export function hasElectricMotor(carType: string): boolean {
 const electricityPrices: Record<string, number> = {
   NL: 0.45, BE: 0.42, DE: 0.44, FR: 0.35, SC: 0.38,
   ES: 0.32, IT: 0.48, PT: 0.30, AT: 0.40, CH: 0.42, HR: 0.28, SI: 0.30,
+  GB: 0.45,
 };
 
 export function getElectricityPrice(countryCode: string): number {

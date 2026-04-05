@@ -21,6 +21,7 @@ const filters = [
   { id: "CH", label: "Zwitserland" },
   { id: "HR", label: "Kroatië" },
   { id: "SI", label: "Slovenië" },
+  { id: "GB", label: "Engeland" },
 ];
 
 const SpotFilters = ({ filter, onFilterChange }: Props) => (
