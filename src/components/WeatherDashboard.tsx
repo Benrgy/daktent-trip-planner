@@ -107,7 +107,7 @@ const WeatherDashboard = ({ config }: Props) => {
         <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 4</div>
         <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Weersverwachting</h2>
         <p className="mb-8 text-sm text-muted-foreground">
-          Live 7-daagse voorspelling via Open-Meteo — data voor {campingSpots.find(s => s.countryCode === config.destination)?.country ?? config.destination}.
+          Live 7-daagse voorspelling via Open-Meteo — data voor {campingSpots.find(s => s.countryCode === (config.destinations?.[0] ?? config.destination))?.country ?? config.destinations?.[0] ?? config.destination}.
         </p>
 
         {loading && (

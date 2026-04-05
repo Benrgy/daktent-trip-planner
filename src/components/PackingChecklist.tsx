@@ -63,7 +63,7 @@ const PackingChecklist = ({ destination, destinations }: Props) => {
         <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 5</div>
         <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Paklijst</h2>
         <p className="mb-6 text-sm text-muted-foreground">
-          Automatisch samengesteld op basis van seizoen{destination ? " en bestemming" : ""} — vink af wat je hebt ingepakt.
+          Automatisch samengesteld op basis van seizoen{allDests.length > 0 ? " en bestemming" + (allDests.length > 1 ? "en" : "") : ""} — vink af wat je hebt ingepakt.
         </p>
 
         {/* Progress */}
