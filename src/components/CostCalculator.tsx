@@ -90,7 +90,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     setLocalFoodBudget(null);
   };
 
-  const handlePrint = () => window.print();
+  
 
   return (
     <section id="kosten" className="border-b border-border py-16 px-4 print:border-none print:py-4">
