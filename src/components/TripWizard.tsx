@@ -5,12 +5,14 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, X, Plus } from "lucide-react";
 import { getValidFuelTypes, getConsumptionRate, getElectricConsumptionRate, hasElectricMotor, isElectric } from "@/services/energyCost";
 
 export interface TripConfig {
   startLocation: string;
+  /** @deprecated Use destinations instead */
   destination: string;
+  destinations: string[];
   days: number;
   budget: number;
   carType: string;
@@ -56,10 +58,30 @@ const fuelLabels: Record<string, string> = {
   lpg: "LPG",
 };
 
+const allDestinations = [
+  { value: "NL", label: "Nederland" },
+  { value: "BE", label: "België" },
+  { value: "DE", label: "Duitsland" },
+  { value: "FR", label: "Frankrijk" },
+  { value: "SC", label: "Scandinavië" },
+  { value: "GB", label: "Engeland (UK)" },
+  { value: "ES", label: "Spanje" },
+  { value: "IT", label: "Italië" },
+  { value: "PT", label: "Portugal" },
+  { value: "AT", label: "Oostenrijk" },
+  { value: "CH", label: "Zwitserland" },
+  { value: "HR", label: "Kroatië" },
+  { value: "SI", label: "Slovenië" },
+  { value: "GR", label: "Griekenland" },
+];
+
+const destLabels: Record<string, string> = Object.fromEntries(allDestinations.map(d => [d.value, d.label]));
+
 const TripWizard = ({ onGenerate }: TripWizardProps) => {
   const [config, setConfig] = useState<TripConfig>({
     startLocation: "",
     destination: "",
+    destinations: [],
     days: 5,
     budget: 100,
     carType: "suv",
@@ -75,6 +97,26 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     includeReturnTrip: false,
     departureTime: "08:00",
   });
+
+  const addDestination = (code: string) => {
+    if (!code || config.destinations.includes(code)) return;
+    setConfig(prev => ({
+      ...prev,
+      destinations: [...prev.destinations, code],
+      destination: prev.destinations.length === 0 ? code : prev.destination,
+    }));
+  };
+
+  const removeDestination = (code: string) => {
+    setConfig(prev => {
+      const next = prev.destinations.filter(d => d !== code);
+      return {
+        ...prev,
+        destinations: next,
+        destination: next[0] ?? "",
+      };
+    });
+  };
 
   const togglePref = (id: string) => {
     setConfig(prev => ({
@@ -98,6 +140,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
   const validFuels = getValidFuelTypes(config.carType);
   const showFuelSelect = validFuels.length > 0;
   const showBatterySlider = hasElectricMotor(config.carType);
+  const availableDestinations = allDestinations.filter(d => !config.destinations.includes(d.value));
 
   const getConsumptionLabel = () => {
     if (isElectric(config.carType)) {
@@ -109,6 +152,14 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     return `${getConsumptionRate(config.carType, config.fuelType)} L/100km`;
   };
 
+  const handleGenerate = () => {
+    const finalConfig = {
+      ...config,
+      destination: config.destinations[0] || config.destination,
+    };
+    onGenerate(finalConfig);
+  };
+
   return (
     <section id="wizard" className="border-b border-border py-16 px-4">
       <div className="container mx-auto max-w-2xl">
@@ -117,38 +168,74 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
         <p className="mb-8 text-sm text-muted-foreground">Vul onderstaande gegevens in om een route samen te stellen.</p>
 
         <div className="space-y-6">
-          {/* Start & Destination */}
-          <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">Startlocatie</Label>
-              <Input
-                placeholder="bijv. Amsterdam"
-                value={config.startLocation}
-                onChange={e => setConfig(prev => ({ ...prev, startLocation: e.target.value }))}
-              />
-            </div>
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">Bestemming</Label>
-              <Select value={config.destination} onValueChange={v => setConfig(prev => ({ ...prev, destination: v }))}>
-                <SelectTrigger><SelectValue placeholder="Kies land" /></SelectTrigger>
+          {/* Start location */}
+          <div>
+            <Label className="mb-1.5 text-sm font-medium">Startlocatie</Label>
+            <Input
+              placeholder="bijv. Amsterdam"
+              value={config.startLocation}
+              onChange={e => setConfig(prev => ({ ...prev, startLocation: e.target.value }))}
+            />
+          </div>
+
+          {/* Multi-destination */}
+          <div>
+            <Label className="mb-1.5 text-sm font-medium">
+              Bestemmingen
+              {config.destinations.length > 1 && (
+                <span className="ml-2 text-[11px] font-normal text-primary">
+                  Multi-stop route ({config.destinations.length} stops)
+                </span>
+              )}
+            </Label>
+
+            {/* Selected destinations as chips */}
+            {config.destinations.length > 0 && (
+              <div className="flex flex-wrap gap-1.5 mb-2">
+                {config.destinations.map((code, i) => (
+                  <span
+                    key={code}
+                    className="inline-flex items-center gap-1 rounded-md border border-primary/30 bg-primary/5 px-2 py-1 text-xs font-medium text-primary"
+                  >
+                    <span className="text-[10px] text-muted-foreground mr-0.5">{i + 1}.</span>
+                    {destLabels[code] || code}
+                    <button
+                      type="button"
+                      onClick={() => removeDestination(code)}
+                      className="ml-0.5 rounded-full p-0.5 hover:bg-primary/10"
+                    >
+                      <X className="h-3 w-3" />
+                    </button>
+                  </span>
+                ))}
+              </div>
+            )}
+
+            {/* Add destination dropdown */}
+            {availableDestinations.length > 0 && (
+              <Select value="" onValueChange={addDestination}>
+                <SelectTrigger>
+                  <SelectValue placeholder={config.destinations.length === 0 ? "Kies bestemming" : "Voeg stop toe..."} />
+                </SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="NL">Nederland</SelectItem>
-                  <SelectItem value="BE">België</SelectItem>
-                  <SelectItem value="DE">Duitsland</SelectItem>
-                  <SelectItem value="FR">Frankrijk</SelectItem>
-                  <SelectItem value="SC">Scandinavië</SelectItem>
-                  <SelectItem value="GB">Engeland (UK)</SelectItem>
-                  <SelectItem value="ES">Spanje</SelectItem>
-                  <SelectItem value="IT">Italië</SelectItem>
-                  <SelectItem value="PT">Portugal</SelectItem>
-                  <SelectItem value="AT">Oostenrijk</SelectItem>
-                  <SelectItem value="CH">Zwitserland</SelectItem>
-                  <SelectItem value="HR">Kroatië</SelectItem>
-                  <SelectItem value="SI">Slovenië</SelectItem>
-                  <SelectItem value="GR">Griekenland</SelectItem>
+                  {availableDestinations.map(d => (
+                    <SelectItem key={d.value} value={d.value}>
+                      <span className="flex items-center gap-1.5">
+                        <Plus className="h-3 w-3 text-muted-foreground" />
+                        {d.label}
+                      </span>
+                    </SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
-            </div>
+            )}
+
+            {config.destinations.length > 1 && (
+              <p className="mt-1.5 text-[11px] text-muted-foreground">
+                Route: {config.startLocation || "Start"} → {config.destinations.map(c => destLabels[c]).join(" → ")}
+                {config.includeReturnTrip ? ` → ${config.startLocation || "Start"}` : ""}
+              </p>
+            )}
           </div>
 
           {/* Days & Budget */}
@@ -157,7 +244,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
               <Label className="mb-2 text-sm font-medium">
                 Aantal dagen: <span className="font-semibold text-foreground">{config.days}</span>
               </Label>
-              <Slider min={1} max={14} step={1} value={[config.days]} onValueChange={([v]) => setConfig(prev => ({ ...prev, days: v }))} />
+              <Slider min={1} max={21} step={1} value={[config.days]} onValueChange={([v]) => setConfig(prev => ({ ...prev, days: v }))} />
             </div>
             <div>
               <Label className="mb-2 text-sm font-medium">
@@ -227,7 +314,6 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
               </div>
             </div>
 
-            {/* Fuel select or battery slider */}
             {showBatterySlider ? (
               <div>
                 <Label className="mb-2 text-sm font-medium">
@@ -317,8 +403,8 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
 
           <Button
             size="lg"
-            onClick={() => onGenerate(config)}
-            disabled={!config.startLocation || !config.destination}
+            onClick={handleGenerate}
+            disabled={!config.startLocation || config.destinations.length === 0}
             className="w-full gap-2 py-5 text-sm font-semibold"
           >
             Genereer route <ArrowRight className="h-4 w-4" />
