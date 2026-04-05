@@ -73,6 +73,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     customCampingPrice: null,
     customFoodBudget: null,
     includeReturnTrip: false,
+    departureTime: "08:00",
   });
 
   const togglePref = (id: string) => {
