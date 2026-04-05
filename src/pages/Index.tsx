@@ -81,7 +81,7 @@ const Index = () => {
 
             <CostCalculator config={tripConfig} spots={filteredSpots} realDistanceKm={routeResult?.distanceKm} />
             <WeatherDashboard config={tripConfig} />
-            <PackingChecklist />
+            <PackingChecklist destination={tripConfig.destination} />
             <AffiliateCTA />
           </>
         )}
