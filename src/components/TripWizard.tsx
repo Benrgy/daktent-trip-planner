@@ -143,6 +143,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                   <SelectItem value="CH">Zwitserland</SelectItem>
                   <SelectItem value="HR">Kroatië</SelectItem>
                   <SelectItem value="SI">Slovenië</SelectItem>
+                  <SelectItem value="GR">Griekenland</SelectItem>
                 </SelectContent>
               </Select>
             </div>
