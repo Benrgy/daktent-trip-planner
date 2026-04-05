@@ -99,11 +99,12 @@ export function calculateEnergyCost(
   distanceKm: number,
   carType: string,
   fuelType: string,
-  countryCode: string
+  countryCode: string,
+  customConsumption?: number | null
 ): EnergyCostResult {
   // Pure electric
   if (isElectric(carType)) {
-    const rate = getElectricConsumptionRate(carType);
+    const rate = customConsumption ?? getElectricConsumptionRate(carType);
     const pricePerUnit = getElectricityPrice(countryCode);
     const kWh = (distanceKm / 100) * rate;
     return {
