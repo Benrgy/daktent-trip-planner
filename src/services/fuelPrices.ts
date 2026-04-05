@@ -20,6 +20,7 @@ const fuelPricesEur: Record<string, number> = {
   HR: 1.55,
   SI: 1.60,
   GB: 1.72, // UK avg in EUR
+  GR: 1.78,
 };
 
 const dieselPricesEur: Record<string, number> = {
