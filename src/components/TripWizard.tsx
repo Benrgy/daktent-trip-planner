@@ -125,7 +125,15 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                 </SelectContent>
               </Select>
             </div>
-            {config.carType !== "electric" && (
+            {config.carType === "electric" ? (
+            <div>
+              <Label className="mb-2 text-sm font-medium">
+                Accucapaciteit: <span className="font-semibold text-foreground">{config.batteryKwh} kWh</span>
+                <span className="ml-1 text-[11px] text-muted-foreground">(~{Math.round((config.batteryKwh / 18) * 100 * 0.85)} km bereik)</span>
+              </Label>
+              <Slider min={30} max={120} step={5} value={[config.batteryKwh]} onValueChange={([v]) => setConfig(prev => ({ ...prev, batteryKwh: v }))} />
+            </div>
+            ) : (
             <div>
               <Label className="mb-1.5 text-sm font-medium">Brandstof</Label>
               <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel" | "lpg") => setConfig(prev => ({ ...prev, fuelType: v }))}>
