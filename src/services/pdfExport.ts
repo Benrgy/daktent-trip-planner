@@ -228,6 +228,55 @@ export function exportTripPdf(config: TripConfig, routeResult: RouteResult | nul
     }
   }
 
+  // --- Paklijst ---
+  const currentMonth = new Date().getMonth() + 1;
+  // Merge packing items across all destinations
+  const mergedCategories: Record<string, { id: string; name: string }[]> = {};
+  const seenIds = new Set<string>();
+  for (const dest of destinations.length ? destinations : ["NL"]) {
+    const cats = getFilteredPackingCategories(dest, currentMonth);
+    for (const [cat, items] of Object.entries(cats)) {
+      if (!mergedCategories[cat]) mergedCategories[cat] = [];
+      for (const item of items) {
+        if (!seenIds.has(item.id)) {
+          seenIds.add(item.id);
+          mergedCategories[cat].push(item);
+        }
+      }
+    }
+  }
+
+  const catEntries = Object.entries(mergedCategories);
+  if (catEntries.length > 0) {
+    if (y > 240) { doc.addPage(); y = 20; }
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0);
+    doc.text("Paklijst", 14, y);
+    y += 8;
+
+    for (const [cat, items] of catEntries) {
+      if (y > 265) { doc.addPage(); y = 20; }
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(60);
+      doc.text(cat, 18, y);
+      y += 5;
+
+      doc.setFontSize(9);
+      doc.setFont("helvetica", "normal");
+      doc.setTextColor(80);
+      for (const item of items) {
+        if (y > 272) { doc.addPage(); y = 20; }
+        doc.text(`☐  ${item.name}`, 22, y);
+        y += 4.5;
+      }
+      y += 3;
+    }
+  }
+
   y += 4;
 
   // --- Footer ---
