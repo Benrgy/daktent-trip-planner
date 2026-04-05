@@ -169,7 +169,52 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                   ))}
                 </SelectContent>
               </Select>
-              <p className="mt-1 text-[11px] text-muted-foreground">{getConsumptionLabel()}</p>
+              <div className="mt-1.5 flex items-center gap-2">
+                {config.customConsumption === null ? (
+                  <>
+                    <p className="text-[11px] text-muted-foreground">~{getConsumptionLabel()}</p>
+                    <button
+                      type="button"
+                      onClick={() => {
+                        const defaultRate = isElectric(config.carType)
+                          ? getElectricConsumptionRate(config.carType)
+                          : getConsumptionRate(config.carType, config.fuelType);
+                        setConfig(prev => ({ ...prev, customConsumption: defaultRate }));
+                      }}
+                      className="text-[11px] text-primary underline underline-offset-2 hover:text-primary/80"
+                    >
+                      Aanpassen
+                    </button>
+                  </>
+                ) : (
+                  <div className="flex items-center gap-1.5">
+                    <Input
+                      type="number"
+                      min={1}
+                      max={30}
+                      step={0.1}
+                      value={config.customConsumption}
+                      onChange={e => {
+                        const v = parseFloat(e.target.value);
+                        if (!isNaN(v) && v > 0 && v <= 50) {
+                          setConfig(prev => ({ ...prev, customConsumption: v }));
+                        }
+                      }}
+                      className="h-7 w-16 px-1.5 text-xs"
+                    />
+                    <span className="text-[11px] text-muted-foreground">
+                      {isElectric(config.carType) || config.carType === "phev" ? "kWh" : "L"}/100km
+                    </span>
+                    <button
+                      type="button"
+                      onClick={() => setConfig(prev => ({ ...prev, customConsumption: null }))}
+                      className="text-[11px] text-muted-foreground underline underline-offset-2 hover:text-foreground"
+                    >
+                      Reset
+                    </button>
+                  </div>
+                )}
+              </div>
             </div>
 
             {/* Fuel select or battery slider */}
