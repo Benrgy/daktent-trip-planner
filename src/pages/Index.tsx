@@ -77,7 +77,7 @@ const Index = () => {
           <>
             <section className="border-b border-border py-4 px-4 print:hidden">
               <div className="container mx-auto max-w-3xl">
-                <TripSummary config={tripConfig} routeResult={routeResult} />
+                <TripSummary config={tripConfig} routeResult={routeResult} spots={filteredSpots} />
               </div>
             </section>
 

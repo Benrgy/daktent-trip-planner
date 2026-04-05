@@ -33,7 +33,7 @@ const TripSummary = ({ config, routeResult, spots = [] }: Props) => {
         {shareStatus ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
         {shareStatus ?? "Deel trip"}
       </Button>
-      <Button variant="outline" size="sm" onClick={() => exportTripPdf(config, routeResult)} className="gap-1.5 text-xs">
+      <Button variant="outline" size="sm" onClick={() => exportTripPdf(config, routeResult, spots)} className="gap-1.5 text-xs">
         <Download className="h-3.5 w-3.5" /> PDF
       </Button>
       <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1.5 text-xs">
