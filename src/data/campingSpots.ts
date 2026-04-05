@@ -72,4 +72,9 @@ export const campingSpots: CampingSpot[] = [
 
   // Slovenië
   { id: 40, name: "Soča Vallei Rivier", country: "Slovenië", countryCode: "SI", lat: 46.3, lng: 13.6, type: "paid", facilities: ["water", "toilet", "fire"], rating: 4.8, daktentFriendly: true, description: "Camping aan de smaragdgroene Soča rivier. Rafting, kayak en alpine rust.", legalStatus: "Campsite", pricePerNight: 20 },
+
+  // Engeland (UK)
+  { id: 41, name: "Lake District Wild Camp", country: "Engeland", countryCode: "GB", lat: 54.4, lng: -3.1, type: "free", facilities: ["water"], rating: 4.5, daktentFriendly: true, description: "Wildcamping in het Lake District met uitzicht op de meren en bergen.", legalStatus: "Wild camping (tolerated)", pricePerNight: 0 },
+  { id: 42, name: "Dartmoor Moorland", country: "Engeland", countryCode: "GB", lat: 50.6, lng: -3.9, type: "free", facilities: ["water"], rating: 4.3, daktentFriendly: true, description: "Open heidevelden van Dartmoor. Een van de weinige plekken in Engeland waar wildcampen mag.", legalStatus: "Legal wild camping", pricePerNight: 0 },
+  { id: 43, name: "Cotswolds Farmcamp", country: "Engeland", countryCode: "GB", lat: 51.8, lng: -1.7, type: "paid", facilities: ["water", "toilet", "electricity"], rating: 4.7, daktentFriendly: true, description: "Idyllische boerderijcamping in de Cotswolds. Rollende heuvels en pittoreske dorpjes.", legalStatus: "Campsite", pricePerNight: 22 },
 ];
