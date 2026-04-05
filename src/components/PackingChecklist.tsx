@@ -5,6 +5,7 @@ import { ChevronDown, ChevronUp, Check } from "lucide-react";
 
 interface Props {
   destination?: string;
+  destinations?: string[];
 }
 
 const PackingChecklist = ({ destination }: Props) => {
