@@ -61,7 +61,9 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     : 12;
   const campingCost = Math.round((localCampingPrice ?? avgCampCost) * config.days);
   const foodCost = Math.round(config.people * config.days * (localFoodBudget ?? 25));
-  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI", "GB"].includes(config.destination) ? Math.round(config.days * 8 * multiplier) : 0;
+  const countryInfo = getCountryData(config.destination);
+  const tollPerKm = countryInfo?.tollPerKm ?? 0;
+  const tollCost = tollPerKm > 0 ? Math.round(totalKm * tollPerKm) : 0;
   const vignet = vignetPrices[config.destination];
   const vignetCost = vignet ? vignet.price : 0;
   const ferry = ferryCosts[config.destination];
