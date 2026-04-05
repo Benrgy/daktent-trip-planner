@@ -18,6 +18,8 @@ export interface TripConfig {
   batteryKwh: number;
   people: number;
   preferences: string[];
+  /** User-specified fuel consumption (L/100km or kWh/100km). null = use default */
+  customConsumption: number | null;
 }
 
 interface TripWizardProps {
