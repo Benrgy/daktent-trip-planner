@@ -13,6 +13,7 @@ export interface TripConfig {
   days: number;
   budget: number;
   carType: string;
+  fuelType: "benzine" | "diesel";
   people: number;
   preferences: string[];
 }
