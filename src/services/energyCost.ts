@@ -142,7 +142,7 @@ export function calculateEnergyCost(
 
   // Standard combustion / hybrid
   const prices = getFuelPrices(countryCode);
-  const rate = getConsumptionRate(carType, fuelType);
+  const rate = customConsumption ?? getConsumptionRate(carType, fuelType);
   const pricePerUnit =
     fuelType === "diesel" ? prices.diesel :
     fuelType === "lpg" ? prices.lpg :
