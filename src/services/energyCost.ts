@@ -119,7 +119,7 @@ export function calculateEnergyCost(
   // PHEV: combination of fuel + electricity
   if (isPhev(carType)) {
     const prices = getFuelPrices(countryCode);
-    const fuelRate = getConsumptionRate(carType, fuelType);
+    const fuelRate = customConsumption ?? getConsumptionRate(carType, fuelType);
     const elRate = getElectricConsumptionRate(carType);
     const fuelPrice = prices.benzine; // PHEV always benzine
     const elPrice = getElectricityPrice(countryCode);
