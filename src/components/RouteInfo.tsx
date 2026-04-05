@@ -80,27 +80,45 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
       {error && <p className="text-sm text-destructive">{error}</p>}
 
       {!loading && !error && route && (
-        <div className="grid grid-cols-3 gap-3 text-center">
-          <div>
-            <MapPin className="mx-auto mb-1 h-4 w-4 text-primary" />
-            <p className="text-lg font-bold text-foreground">{route.distanceKm} km</p>
-            <p className="text-[11px] text-muted-foreground">Afstand</p>
-          </div>
-          <div>
-            <Clock className="mx-auto mb-1 h-4 w-4 text-primary" />
-            <p className="text-lg font-bold text-foreground">{formatDuration(route.durationMinutes)}</p>
-            <p className="text-[11px] text-muted-foreground">Rijtijd</p>
-          </div>
-          <div>
-            {isElectric(config.carType) ? (
-              <Zap className="mx-auto mb-1 h-4 w-4 text-primary" />
-            ) : (
-              <Car className="mx-auto mb-1 h-4 w-4 text-primary" />
+        <>
+          <div className={`grid gap-3 text-center ${isElectric(config.carType) ? "grid-cols-4" : "grid-cols-3"}`}>
+            <div>
+              <MapPin className="mx-auto mb-1 h-4 w-4 text-primary" />
+              <p className="text-lg font-bold text-foreground">{route.distanceKm} km</p>
+              <p className="text-[11px] text-muted-foreground">Afstand</p>
+            </div>
+            <div>
+              <Clock className="mx-auto mb-1 h-4 w-4 text-primary" />
+              <p className="text-lg font-bold text-foreground">{formatDuration(route.durationMinutes)}</p>
+              <p className="text-[11px] text-muted-foreground">Rijtijd</p>
+            </div>
+            <div>
+              {isElectric(config.carType) ? (
+                <Zap className="mx-auto mb-1 h-4 w-4 text-primary" />
+              ) : (
+                <Car className="mx-auto mb-1 h-4 w-4 text-primary" />
+              )}
+              <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination).cost}</p>
+              <p className="text-[11px] text-muted-foreground">{isElectric(config.carType) ? "Opladen" : "Brandstof"}</p>
+            </div>
+            {isElectric(config.carType) && (
+              <div>
+                <BatteryCharging className="mx-auto mb-1 h-4 w-4 text-primary" />
+                <p className="text-lg font-bold text-foreground">{Math.max(0, Math.ceil(route.distanceKm / EV_RANGE_KM) - 1)}×</p>
+                <p className="text-[11px] text-muted-foreground">Laadstops</p>
+              </div>
             )}
-            <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination).cost}</p>
-            <p className="text-[11px] text-muted-foreground">{isElectric(config.carType) ? "Opladen" : "Brandstof"}</p>
           </div>
-        </div>
+
+          {isElectric(config.carType) && route.distanceKm > EV_RANGE_KM && (
+            <div className="mt-3 rounded-md bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
+              <span className="font-medium text-foreground">⚡ EV Info:</span>{" "}
+              Geschat bereik ~{EV_RANGE_KM} km (accu {EV_BATTERY_KWH} kWh, 85% bruikbaar). 
+              {" "}{Math.max(0, Math.ceil(route.distanceKm / EV_RANGE_KM) - 1)} laadstop(s) van ~{CHARGE_TIME_MIN} min (DC snellader), 
+              totaal ~{formatDuration(route.durationMinutes + (Math.max(0, Math.ceil(route.distanceKm / EV_RANGE_KM) - 1)) * CHARGE_TIME_MIN)} incl. laden.
+            </div>
+          )}
+        </>
       )}
     </div>
   );
