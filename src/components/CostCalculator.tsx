@@ -4,18 +4,24 @@ import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
 import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Printer } from "lucide-react";
+import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Printer, Ship } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
-const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150 };
+const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200 };
 
 /** Vignette prices per country (EUR) */
 const vignetPrices: Record<string, { price: number; label: string }> = {
   CH: { price: 42, label: "Vignet (jaar)" },
   AT: { price: 10, label: "Vignet (10-dagen)" },
   SI: { price: 15, label: "Vignet (7-dagen)" },
+};
+
+/** Ferry/tunnel costs per country (EUR, return price) */
+const ferryCosts: Record<string, { price: number; label: string; description: string }> = {
+  GB: { price: 180, label: "Kanaaltunnel / Veerboot", description: "Calais–Dover retour (auto + passagiers)" },
+  SC: { price: 250, label: "Veerboot Scandinavië", description: "Puttgarden–Rødby of Rostock–Gedser retour" },
 };
 
 interface Props {
@@ -54,10 +60,12 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     : 12;
   const campingCost = Math.round((localCampingPrice ?? avgCampCost) * config.days);
   const foodCost = Math.round(config.people * config.days * (localFoodBudget ?? 25));
-  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI"].includes(config.destination) ? Math.round(config.days * 8 * multiplier) : 0;
+  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI", "GB"].includes(config.destination) ? Math.round(config.days * 8 * multiplier) : 0;
   const vignet = vignetPrices[config.destination];
   const vignetCost = vignet ? vignet.price : 0;
-  const totalCost = fuelCost + campingCost + foodCost + tollCost + vignetCost;
+  const ferry = ferryCosts[config.destination];
+  const ferryCost = ferry ? ferry.price : 0;
+  const totalCost = fuelCost + campingCost + foodCost + tollCost + vignetCost + ferryCost;
   const hotelEquiv = config.days * config.people * 85;
   const savings = hotelEquiv - totalCost;
 
@@ -69,6 +77,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     { name: "Eten", value: foodCost, color: "hsl(32, 95%, 44%)" },
     { name: "Tol", value: tollCost, color: "hsl(220, 9%, 46%)" },
     ...(vignetCost > 0 ? [{ name: vignet!.label, value: vignetCost, color: "hsl(280, 40%, 50%)" }] : []),
+    ...(ferryCost > 0 ? [{ name: ferry!.label, value: ferryCost, color: "hsl(200, 60%, 45%)" }] : []),
   ];
 
   const resetPrices = () => {
@@ -188,6 +197,18 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
             {energy.electricLabel && ` + ${energy.electricLabel} = €${energy.electricCost}`}
           </p>
         </div>
+
+        {/* Ferry/tunnel info */}
+        {ferry && (
+          <div className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
+            <div className="flex items-center gap-2 mb-1">
+              <Ship className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">{ferry.label}</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">{ferry.description}</p>
+            <p className="mt-1 text-xs font-medium text-foreground">€{ferry.price} (geschat gemiddelde)</p>
+          </div>
+        )}
 
         {/* Adjustable prices panel */}
         <Collapsible open={priceOpen} onOpenChange={setPriceOpen} className="mt-4 print:hidden">

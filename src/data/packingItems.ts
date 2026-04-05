@@ -62,6 +62,8 @@ export const packingCategories: Record<string, PackingItem[]> = {
     { id: "doc4", name: "Zorgverzekeringspas (EHIC)", category: "Documenten" },
     { id: "doc5", name: "Routebeschrijving / GPS", category: "Documenten" },
     { id: "doc6", name: "Vignet (vooraf kopen!)", category: "Documenten", destinations: ["CH", "AT", "SI"] },
+    { id: "doc7", name: "UK-stekker adapter (Type G)", category: "Documenten", destinations: ["GB"] },
+    { id: "doc8", name: "Veerboot / Kanaaltunnel ticket", category: "Documenten", destinations: ["GB", "SC"] },
   ],
   "Winteruitrusting": [
     { id: "w1", name: "Sneeuwkettingen", category: "Winteruitrusting", season: "winter" },
