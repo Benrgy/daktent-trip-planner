@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import { TripConfig } from "@/components/TripWizard";
 import { RouteResult, formatDuration } from "@/services/routing";
+import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
 import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
 import { getCountryData } from "@/data/countryData";
@@ -34,7 +35,7 @@ const avgDistPerDay: Record<string, number> = {
   PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200, GR: 250,
 };
 
-export function exportTripPdf(config: TripConfig, routeResult: RouteResult | null) {
+export function exportTripPdf(config: TripConfig, routeResult: RouteResult | null, spots: CampingSpot[] = []) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pw = 190; // printable width
   let y = 20;
@@ -185,12 +186,57 @@ export function exportTripPdf(config: TripConfig, routeResult: RouteResult | nul
   doc.setFontSize(10);
   doc.setFont("helvetica", "normal");
   doc.text(`€${Math.round(totalCost / config.days)} per dag`, 18, y);
-  y += 12;
+  // --- Campingspot aanbevelingen ---
+  const relevantSpots = spots
+    .filter(s => destinations.includes(s.countryCode))
+    .sort((a, b) => b.rating - a.rating)
+    .slice(0, 10);
+
+  if (relevantSpots.length > 0) {
+    if (y > 240) { doc.addPage(); y = 20; }
+
+    doc.setFontSize(14);
+    doc.setFont("helvetica", "bold");
+    doc.setTextColor(0);
+    doc.text("Campingspot aanbevelingen", 14, y);
+    y += 8;
+
+    for (const spot of relevantSpots) {
+      if (y > 265) { doc.addPage(); y = 20; }
+
+      doc.setFontSize(10);
+      doc.setFont("helvetica", "bold");
+      doc.setTextColor(0);
+      const stars = "★".repeat(Math.round(spot.rating)) + "☆".repeat(5 - Math.round(spot.rating));
+      doc.text(`${spot.name}`, 18, y);
+      doc.setFont("helvetica", "normal");
+      doc.text(`${stars} (${spot.rating})`, 140, y, { align: "right" });
+      y += 5;
+
+      doc.setFontSize(9);
+      doc.setTextColor(100);
+      const info = [
+        spot.country,
+        spot.type === "free" ? "Gratis" : `€${spot.pricePerNight}/nacht`,
+        spot.daktentFriendly ? "Daktent-vriendelijk" : "",
+        spot.facilities.join(", "),
+      ].filter(Boolean).join(" · ");
+      const infoLines = doc.splitTextToSize(info, pw - 8);
+      doc.text(infoLines, 18, y);
+      y += infoLines.length * 4 + 4;
+    }
+  }
+
+  y += 4;
 
   // --- Footer ---
-  doc.setFontSize(8);
-  doc.setTextColor(150);
-  doc.text("Gegenereerd door DaktentTripPlanner.nl — Alle bedragen zijn schattingen.", 14, 282);
+  const pageCount = doc.getNumberOfPages();
+  for (let i = 1; i <= pageCount; i++) {
+    doc.setPage(i);
+    doc.setFontSize(8);
+    doc.setTextColor(150);
+    doc.text("Gegenereerd door DaktentTripPlanner.nl — Alle bedragen zijn schattingen.", 14, 282);
+  }
 
   doc.save(`daktent-trip-${destinations.join("-")}.pdf`);
 }

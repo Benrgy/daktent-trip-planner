@@ -1,5 +1,6 @@
 import { TripConfig } from "./TripWizard";
 import { RouteResult, formatDuration } from "@/services/routing";
+import { CampingSpot } from "@/data/campingSpots";
 import { Share2, Printer, Check, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useShareTrip } from "@/hooks/useSavedTrip";
@@ -9,9 +10,10 @@ import { useState } from "react";
 interface Props {
   config: TripConfig;
   routeResult: RouteResult | null;
+  spots?: CampingSpot[];
 }
 
-const TripSummary = ({ config, routeResult }: Props) => {
+const TripSummary = ({ config, routeResult, spots = [] }: Props) => {
   const { shareTrip } = useShareTrip();
   const [shareStatus, setShareStatus] = useState<string | null>(null);
 
@@ -31,7 +33,7 @@ const TripSummary = ({ config, routeResult }: Props) => {
         {shareStatus ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
         {shareStatus ?? "Deel trip"}
       </Button>
-      <Button variant="outline" size="sm" onClick={() => exportTripPdf(config, routeResult)} className="gap-1.5 text-xs">
+      <Button variant="outline" size="sm" onClick={() => exportTripPdf(config, routeResult, spots)} className="gap-1.5 text-xs">
         <Download className="h-3.5 w-3.5" /> PDF
       </Button>
       <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1.5 text-xs">
