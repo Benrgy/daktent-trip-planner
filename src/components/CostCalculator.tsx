@@ -198,6 +198,18 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
           </p>
         </div>
 
+        {/* Ferry/tunnel info */}
+        {ferry && (
+          <div className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
+            <div className="flex items-center gap-2 mb-1">
+              <Ship className="h-4 w-4 text-primary" />
+              <h3 className="text-sm font-semibold text-foreground">{ferry.label}</h3>
+            </div>
+            <p className="text-sm text-muted-foreground">{ferry.description}</p>
+            <p className="mt-1 text-xs font-medium text-foreground">€{ferry.price} (geschat gemiddelde)</p>
+          </div>
+        )}
+
         {/* Adjustable prices panel */}
         <Collapsible open={priceOpen} onOpenChange={setPriceOpen} className="mt-4 print:hidden">
           <CollapsibleTrigger className="flex w-full items-center gap-2 rounded-lg border border-border bg-card px-4 py-3 text-sm font-medium text-foreground hover:bg-muted/50 transition-colors">
