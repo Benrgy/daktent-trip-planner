@@ -4,9 +4,9 @@ import { geocode } from "@/services/geocoding";
 import { getRoute, formatDuration, RouteResult } from "@/services/routing";
 import { calculateEnergyCost, isElectric, isPhev, hasElectricMotor, getElectricConsumptionRate } from "@/services/energyCost";
 import { campingSpots } from "@/data/campingSpots";
-import { Car, Clock, MapPin, Loader2, Zap, BatteryCharging, Bike } from "lucide-react";
+import { Car, Clock, MapPin, Loader2, Zap, BatteryCharging, Bike, ArrowLeftRight } from "lucide-react";
 
-const CHARGE_TIME_MIN = 30; // avg DC fast charge stop
+const CHARGE_TIME_MIN = 30;
 
 function getEvRange(batteryKwh: number, carType: string): number {
   const consumption = getElectricConsumptionRate(carType);
@@ -22,6 +22,8 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
   const [route, setRoute] = useState<RouteResult | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
+
+  const multiplier = config.includeReturnTrip ? 2 : 1;
 
   useEffect(() => {
     if (!config.startLocation || !config.destination) return;
@@ -75,6 +77,11 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
     <div className="rounded-lg border border-border bg-card p-4 shadow-card">
       <h3 className="mb-3 text-sm font-semibold text-foreground flex items-center gap-2">
         <VehicleIcon className="h-4 w-4 text-primary" /> Route-informatie
+        {config.includeReturnTrip && (
+          <span className="flex items-center gap-1 text-[10px] font-normal text-primary">
+            <ArrowLeftRight className="h-3 w-3" /> Retour
+          </span>
+        )}
         <span className="text-[10px] font-normal text-muted-foreground ml-auto">via OSRM</span>
       </h3>
 
@@ -86,56 +93,60 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
 
       {error && <p className="text-sm text-destructive">{error}</p>}
 
-      {!loading && !error && route && (
-        <>
-          <div className={`grid gap-3 text-center ${hasEv ? "grid-cols-4" : "grid-cols-3"}`}>
-            <div>
-              <MapPin className="mx-auto mb-1 h-4 w-4 text-primary" />
-              <p className="text-lg font-bold text-foreground">{route.distanceKm} km</p>
-              <p className="text-[11px] text-muted-foreground">Afstand</p>
+      {!loading && !error && route && (() => {
+        const displayKm = route.distanceKm * multiplier;
+        const displayMin = route.durationMinutes * multiplier;
+        return (
+          <>
+            <div className={`grid gap-3 text-center ${hasEv ? "grid-cols-4" : "grid-cols-3"}`}>
+              <div>
+                <MapPin className="mx-auto mb-1 h-4 w-4 text-primary" />
+                <p className="text-lg font-bold text-foreground">{displayKm} km</p>
+                <p className="text-[11px] text-muted-foreground">{config.includeReturnTrip ? "Retour" : "Afstand"}</p>
+              </div>
+              <div>
+                <Clock className="mx-auto mb-1 h-4 w-4 text-primary" />
+                <p className="text-lg font-bold text-foreground">{formatDuration(displayMin)}</p>
+                <p className="text-[11px] text-muted-foreground">Rijtijd</p>
+              </div>
+              <div>
+                {hasEv ? (
+                  <Zap className="mx-auto mb-1 h-4 w-4 text-primary" />
+                ) : (
+                  <VehicleIcon className="mx-auto mb-1 h-4 w-4 text-primary" />
+                )}
+                <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(displayKm, config.carType, config.fuelType, config.destination, config.customConsumption).cost}</p>
+                <p className="text-[11px] text-muted-foreground">{electric ? "Opladen" : phev ? "Brandstof+Stroom" : "Brandstof"}</p>
+              </div>
+              {hasEv && (() => {
+                const evRange = getEvRange(config.batteryKwh, config.carType);
+                const stops = Math.max(0, Math.ceil(displayKm / evRange) - 1);
+                return (
+                  <div>
+                    <BatteryCharging className="mx-auto mb-1 h-4 w-4 text-primary" />
+                    <p className="text-lg font-bold text-foreground">{stops}×</p>
+                    <p className="text-[11px] text-muted-foreground">Laadstops</p>
+                  </div>
+                );
+              })()}
             </div>
-            <div>
-              <Clock className="mx-auto mb-1 h-4 w-4 text-primary" />
-              <p className="text-lg font-bold text-foreground">{formatDuration(route.durationMinutes)}</p>
-              <p className="text-[11px] text-muted-foreground">Rijtijd</p>
-            </div>
-            <div>
-              {hasEv ? (
-                <Zap className="mx-auto mb-1 h-4 w-4 text-primary" />
-              ) : (
-                <VehicleIcon className="mx-auto mb-1 h-4 w-4 text-primary" />
-              )}
-              <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination, config.customConsumption).cost}</p>
-              <p className="text-[11px] text-muted-foreground">{electric ? "Opladen" : phev ? "Brandstof+Stroom" : "Brandstof"}</p>
-            </div>
+
             {hasEv && (() => {
               const evRange = getEvRange(config.batteryKwh, config.carType);
-              const stops = Math.max(0, Math.ceil(route.distanceKm / evRange) - 1);
+              const stops = Math.max(0, Math.ceil(displayKm / evRange) - 1);
+              if (displayKm <= evRange) return null;
               return (
-                <div>
-                  <BatteryCharging className="mx-auto mb-1 h-4 w-4 text-primary" />
-                  <p className="text-lg font-bold text-foreground">{stops}×</p>
-                  <p className="text-[11px] text-muted-foreground">Laadstops</p>
+                <div className="mt-3 rounded-md bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
+                  <span className="font-medium text-foreground">⚡ {phev ? "PHEV" : "EV"} Info:</span>{" "}
+                  Geschat bereik ~{evRange} km (accu {config.batteryKwh} kWh, 85% bruikbaar).
+                  {" "}{stops} laadstop(s) van ~{CHARGE_TIME_MIN} min (DC snellader),
+                  totaal ~{formatDuration(displayMin + stops * CHARGE_TIME_MIN)} incl. laden.
                 </div>
               );
             })()}
-          </div>
-
-          {hasEv && (() => {
-            const evRange = getEvRange(config.batteryKwh, config.carType);
-            const stops = Math.max(0, Math.ceil(route.distanceKm / evRange) - 1);
-            if (route.distanceKm <= evRange) return null;
-            return (
-              <div className="mt-3 rounded-md bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
-                <span className="font-medium text-foreground">⚡ {phev ? "PHEV" : "EV"} Info:</span>{" "}
-                Geschat bereik ~{evRange} km (accu {config.batteryKwh} kWh, 85% bruikbaar).
-                {" "}{stops} laadstop(s) van ~{CHARGE_TIME_MIN} min (DC snellader),
-                totaal ~{formatDuration(route.durationMinutes + stops * CHARGE_TIME_MIN)} incl. laden.
-              </div>
-            );
-          })()}
-        </>
-      )}
+          </>
+        );
+      })()}
     </div>
   );
 };

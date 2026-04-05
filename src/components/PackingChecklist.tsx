@@ -1,11 +1,21 @@
-import { useState } from "react";
-import { packingCategories } from "@/data/packingItems";
+import { useState, useMemo } from "react";
+import { getFilteredPackingCategories } from "@/data/packingItems";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ChevronDown, ChevronUp, Check } from "lucide-react";
 
-const PackingChecklist = () => {
+interface Props {
+  destination?: string;
+}
+
+const PackingChecklist = ({ destination }: Props) => {
+  const currentMonth = new Date().getMonth() + 1;
+  const categories = useMemo(
+    () => getFilteredPackingCategories(destination, currentMonth),
+    [destination, currentMonth]
+  );
+
   const [checked, setChecked] = useState<Set<string>>(new Set());
-  const [openSections, setOpenSections] = useState<Set<string>>(new Set(Object.keys(packingCategories)));
+  const [openSections, setOpenSections] = useState<Set<string>>(new Set(Object.keys(categories)));
 
   const toggle = (id: string) => {
     setChecked(prev => {
@@ -23,15 +33,17 @@ const PackingChecklist = () => {
     });
   };
 
-  const totalItems = Object.values(packingCategories).flat().length;
-  const progress = Math.round((checked.size / totalItems) * 100);
+  const totalItems = Object.values(categories).flat().length;
+  const progress = totalItems > 0 ? Math.round((checked.size / totalItems) * 100) : 0;
 
   return (
     <section className="border-b border-border py-16 px-4">
       <div className="container mx-auto max-w-2xl">
         <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 5</div>
         <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Paklijst</h2>
-        <p className="mb-6 text-sm text-muted-foreground">Automatisch samengesteld — vink af wat je hebt ingepakt.</p>
+        <p className="mb-6 text-sm text-muted-foreground">
+          Automatisch samengesteld op basis van seizoen{destination ? " en bestemming" : ""} — vink af wat je hebt ingepakt.
+        </p>
 
         {/* Progress */}
         <div className="mb-6 flex items-center gap-3">
@@ -42,7 +54,7 @@ const PackingChecklist = () => {
         </div>
 
         <div className="space-y-2">
-          {Object.entries(packingCategories).map(([cat, items]) => {
+          {Object.entries(categories).map(([cat, items]) => {
             const catChecked = items.filter(i => checked.has(i.id)).length;
             const isOpen = openSections.has(cat);
             const allDone = catChecked === items.length;

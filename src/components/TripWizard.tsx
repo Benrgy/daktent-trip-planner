@@ -18,8 +18,12 @@ export interface TripConfig {
   batteryKwh: number;
   people: number;
   preferences: string[];
-  /** User-specified fuel consumption (L/100km or kWh/100km). null = use default */
   customConsumption: number | null;
+  customFuelPrice: number | null;
+  customElectricityPrice: number | null;
+  customCampingPrice: number | null;
+  customFoodBudget: number | null;
+  includeReturnTrip: boolean;
 }
 
 interface TripWizardProps {
@@ -63,6 +67,11 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     people: 2,
     preferences: ["natuur"],
     customConsumption: null,
+    customFuelPrice: null,
+    customElectricityPrice: null,
+    customCampingPrice: null,
+    customFoodBudget: null,
+    includeReturnTrip: false,
   });
 
   const togglePref = (id: string) => {
@@ -79,9 +88,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     setConfig(prev => ({
       ...prev,
       carType: v,
-      // Reset fuel type if current one is not valid for new car type
       fuelType: validFuels.includes(prev.fuelType) ? prev.fuelType : (validFuels[0] as "benzine" | "diesel" | "lpg") ?? "benzine",
-      // Default battery for PHEV
       batteryKwh: v === "phev" ? 13 : v === "electric" ? prev.batteryKwh : 60,
     }));
   };
@@ -90,7 +97,6 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
   const showFuelSelect = validFuels.length > 0;
   const showBatterySlider = hasElectricMotor(config.carType);
 
-  // Dynamic consumption display
   const getConsumptionLabel = () => {
     if (isElectric(config.carType)) {
       return `${getElectricConsumptionRate(config.carType)} kWh/100km`;
@@ -257,6 +263,17 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                 </SelectContent>
               </Select>
             </div>
+          </div>
+
+          {/* Return trip toggle */}
+          <div className="flex items-center gap-3">
+            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+              <Checkbox
+                checked={config.includeReturnTrip}
+                onCheckedChange={(checked) => setConfig(prev => ({ ...prev, includeReturnTrip: checked === true }))}
+              />
+              Inclusief terugrit (heen + terug)
+            </label>
           </div>
 
           {/* Preferences */}
