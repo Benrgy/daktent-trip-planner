@@ -76,7 +76,7 @@ export function exportTripPdf(config: TripConfig, routeResult: RouteResult | nul
     y += 6;
   };
 
-  addRow("Vertrekplaats:", config.origin || "Nederland");
+  addRow("Vertrekplaats:", config.startLocation || "Nederland");
   addRow("Bestemmingen:", destinations.map(d => destLabels[d] || d).join(" → "));
   addRow("Reisduur:", `${config.days} dagen`);
   addRow("Personen:", `${config.people}`);
