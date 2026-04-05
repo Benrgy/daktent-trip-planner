@@ -269,15 +269,26 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
             </div>
           </div>
 
-          {/* Return trip toggle */}
-          <div className="flex items-center gap-3">
-            <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
-              <Checkbox
-                checked={config.includeReturnTrip}
-                onCheckedChange={(checked) => setConfig(prev => ({ ...prev, includeReturnTrip: checked === true }))}
+          {/* Return trip + departure time */}
+          <div className="grid gap-4 sm:grid-cols-2">
+            <div className="flex items-center gap-3">
+              <label className="flex cursor-pointer items-center gap-2 text-sm font-medium text-foreground">
+                <Checkbox
+                  checked={config.includeReturnTrip}
+                  onCheckedChange={(checked) => setConfig(prev => ({ ...prev, includeReturnTrip: checked === true }))}
+                />
+                Inclusief terugrit (heen + terug)
+              </label>
+            </div>
+            <div>
+              <Label className="mb-1.5 text-sm font-medium">Vertrektijd</Label>
+              <Input
+                type="time"
+                value={config.departureTime}
+                onChange={e => setConfig(prev => ({ ...prev, departureTime: e.target.value }))}
+                className="h-9"
               />
-              Inclusief terugrit (heen + terug)
-            </label>
+            </div>
           </div>
 
           {/* Preferences */}
