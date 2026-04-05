@@ -1,74 +1,93 @@
 
 
-# Verbruikswaarden herziening + motorfietsen toevoegen
+# Aanpasbare brandstofprijzen + ontbrekende features toevoegen
 
-## Probleem
-De huidige verbruikswaarden (bijv. hybride = 4L/100km) zijn onrealistisch zonder merk/model-informatie. Zonder fabrieksdata moeten we realistische **gemiddelden** gebruiken op basis van voertuigcategorie, geen optimistische claims.
+## Wat er nu mist
 
-## Herziene verbruikswaarden
+Na analyse van de volledige codebase vallen de volgende zaken op:
 
-Nieuwe realistische gemiddelden gebaseerd op Europese praktijkcijfers:
+### 1. Brandstofprijzen zijn niet aanpasbaar
+De prijzen in `fuelPrices.ts` zijn hard-coded. Gebruikers kunnen hun verbruik al aanpassen, maar **niet** de brandstofprijs per liter/kWh. Dit is essentieel omdat prijzen per tankstation en per week fluctueren.
 
-```text
-Voertuigtype          Benzine    Diesel     LPG        Elektrisch
-─────────────────────────────────────────────────────────────────
-Klein (stadsauto)     6.5 L      5.0 L      8.0 L      -
-Middel (sedan)        7.5 L      6.0 L      9.5 L      -
-SUV                   9.0 L      7.5 L      11.0 L     -
-4x4 / Camper          11.0 L     9.0 L      13.5 L     -
-Hybride (HEV)        5.5 L      -          -          -
-Plug-in hybride       3.0 L*     -          -          15 kWh
-Elektrisch            -          -          -          18 kWh
-Motorfiets            4.5 L      -          -          -
+### 2. Ontbrekende features die gebruikers verwachten
 
-* PHEV: combinatie stroom + benzine, afhankelijk van rijprofiel
+| Feature | Status | Impact |
+|---------|--------|--------|
+| Aanpasbare brandstofprijzen | Ontbreekt | Hoog — prijzen veranderen wekelijks |
+| Vignetkosten per land | Alleen "tol" forfait | Hoog — Zwitserland €40, Oostenrijk €10-daags, etc. |
+| Veerpont/tunnel kosten | Ontbreekt | Midden — UK, Scandinavië, eilanden |
+| Campingprijs aanpasbaar | Ontbreekt | Hoog — verschilt enorm per camping |
+| Eten budget aanpasbaar | Hard-coded €25/pp/dag | Midden |
+| Seizoensgebonden paklijst | Altijd dezelfde lijst | Midden — winter vs zomer items |
+| Trip samenvatting delen/printen | Ontbreekt | Hoog — gebruikers willen resultaat bewaren |
+| Terugrit in kostenberekening | Ontbreekt | Hoog — kosten zijn nu enkele reis |
+
+## Plan van aanpak
+
+### Bestand 1: `src/services/fuelPrices.ts`
+- Exporteer de standaard prijzen zodat ze als defaults dienen
+- Geen logica-wijziging nodig, de aanpassing zit in de UI
+
+### Bestand 2: `src/components/TripWizard.tsx`
+- **TripConfig uitbreiden** met:
+  - `customFuelPrice: number | null` — eigen brandstofprijs
+  - `customElectricityPrice: number | null` — eigen stroomprijs
+  - `customCampingPrice: number | null` — eigen campingprijs per nacht
+  - `customFoodBudget: number | null` — eigen eetbudget per persoon/dag
+  - `includeReturnTrip: boolean` — heen+terug berekening
+- **UI**: Onder de kostenberekening (of als uitklapbaar "Prijzen aanpassen" paneel) invoervelden toevoegen voor:
+  - Brandstofprijs (€/L) met placeholder = landgemiddelde
+  - Stroompijs (€/kWh) voor EV/PHEV
+  - Campingprijs per nacht
+  - Eetbudget per persoon per dag
+  - Toggle "Inclusief terugrit"
+
+### Bestand 3: `src/components/CostCalculator.tsx`
+- Gebruik `customFuelPrice` / `customElectricityPrice` als override in `calculateEnergyCost`
+- Gebruik `customCampingPrice` als override voor campingkosten
+- Gebruik `customFoodBudget` als override voor eetkosten
+- Vignetkosten toevoegen als aparte post (vaste bedragen per land)
+- Als `includeReturnTrip` aan staat: verdubbel brandstof/tol/vignet
+- Vignetprijzen toevoegen per land:
+  - CH: €42 (jaar), AT: €10 (10-dagen), SI: €15 (7-dagen), CZ: €15 (10-dagen), HR: variabel
+
+### Bestand 4: `src/services/energyCost.ts`
+- `calculateEnergyCost` uitbreiden met optionele `customFuelPrice` en `customElectricityPrice` parameters
+- Als custom prijs is opgegeven, gebruik die i.p.v. de landgemiddelde
+
+### Bestand 5: `src/components/RouteInfo.tsx`
+- Terugrit-optie verwerken: toon enkele of retour afstand/tijd
+
+### Bestand 6: `src/components/PackingChecklist.tsx` + `src/data/packingItems.ts`
+- Seizoensgebonden items toevoegen: extra items voor winter (thermisch ondergoed, sneeuwkettingen, etc.)
+- Bestemmingsafhankelijke items (muggenspray voor Zuid-Europa, etc.)
+
+### Bestand 7: Nieuw — `src/components/TripSummary.tsx`
+- "Deel je trip" / "Print overzicht" knop
+- Genereert een printbare samenvatting via `window.print()` met alle trip details
+
+## Technische details
+
+De `TripConfig` interface wordt uitgebreid:
+```ts
+interface TripConfig {
+  // ... bestaande velden
+  customFuelPrice: number | null;
+  customElectricityPrice: number | null;
+  customCampingPrice: number | null;
+  customFoodBudget: number | null;
+  includeReturnTrip: boolean;
+}
 ```
 
-### Belangrijke wijzigingen
-- **Hybride**: van 4L naar 5.5L (realistischer voor gewone HEV zonder stekker)
-- **Plug-in hybride (PHEV)**: nieuw type, laag brandstofverbruik + stroom
-- **Motorfiets**: nieuw voertuigtype (~4.5L/100km gemiddeld)
-- **Verbruik verschilt per brandstoftype**: LPG verbruikt ~20-25% meer liters (lagere energie-inhoud)
-- **Klein/Middel/SUV/4x4**: licht bijgesteld naar realistische Europese praktijkcijfers
-
-## Bestanden die wijzigen
-
-### 1. `src/services/energyCost.ts`
-- Verbruikswaarden per voertuigtype EN brandstoftype (niet 1 getal per type)
-- Nieuwe structuur: `fuelRates[carType][fuelType]` i.p.v. flat record
-- Motorfiets en PHEV toevoegen
-- PHEV-logica: berekent combinatie van stroom + brandstof
-
-### 2. `src/components/TripWizard.tsx`
-- Voertuigselectie uitbreiden met "Motorfiets" en "Plug-in hybride"
-- Labels aanpassen (geen vaste L/100km meer tonen, want het verschilt per brandstof)
-- Motorfiets: brandstofkeuze beperken tot benzine
-- PHEV: accuslider tonen + brandstofkeuze
-
-### 3. `src/components/RouteInfo.tsx`
-- PHEV-laadstoplogica toevoegen (vergelijkbaar met EV maar met kleinere accu)
-
-### 4. `src/components/CostCalculator.tsx`
-- PHEV: dubbele kostenlijn tonen (stroom + brandstof)
-
-### 5. Tests updaten
-- `CostCalculator.test.tsx`, `TripWizard.test.tsx` aanpassen voor nieuwe types
-
-## Technische aanpak
-
-Het verbruik wordt een functie van **zowel voertuigtype als brandstoftype**:
-
+De vignetprijzen worden een statische map:
 ```ts
-const fuelRates: Record<string, Record<string, number>> = {
-  small:    { benzine: 6.5, diesel: 5.0, lpg: 8.0 },
-  medium:   { benzine: 7.5, diesel: 6.0, lpg: 9.5 },
-  suv:      { benzine: 9.0, diesel: 7.5, lpg: 11.0 },
-  "4x4":    { benzine: 11.0, diesel: 9.0, lpg: 13.5 },
-  hybrid:   { benzine: 5.5 },
-  phev:     { benzine: 3.0 },
-  motorcycle: { benzine: 4.5 },
+const vignetPrices: Record<string, { price: number; label: string }> = {
+  CH: { price: 42, label: "Vignet (jaar)" },
+  AT: { price: 10, label: "Vignet (10-dagen)" },
+  SI: { price: 15, label: "Vignet (7-dagen)" },
 };
 ```
 
-De UI toont dan het verbruik dynamisch op basis van de geselecteerde combinatie, en sluit ongeldige brandstofkeuzes uit (bijv. geen diesel/LPG voor hybride of motorfiets).
+Het "Prijzen aanpassen" paneel wordt een uitklapbare sectie in de CostCalculator, zodat de flow niet verandert maar gevorderde gebruikers alles kunnen finetunen.
 
