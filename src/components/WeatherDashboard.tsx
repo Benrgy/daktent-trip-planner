@@ -58,9 +58,12 @@ const WeatherDashboard = ({ config }: Props) => {
       setLoading(true);
       setError(null);
 
+      // Use primary destination (first in array or legacy field)
+      const dest = config.destinations?.length > 0 ? config.destinations[0] : config.destination;
+
       // Determine coordinates: first matching camping spot or country center
-      const spot = campingSpots.find(s => s.countryCode === config.destination);
-      const center = countryCenter[config.destination];
+      const spot = campingSpots.find(s => s.countryCode === dest);
+      const center = countryCenter[dest];
       const lat = spot?.lat ?? center?.[0] ?? 52.2;
       const lng = spot?.lng ?? center?.[1] ?? 5.3;
 
@@ -96,7 +99,7 @@ const WeatherDashboard = ({ config }: Props) => {
     };
 
     fetchWeather();
-  }, [config.destination, config.days]);
+  }, [config.destinations?.join(",") ?? config.destination, config.days]);
 
   return (
     <section className="border-b border-border bg-muted/30 py-16 px-4">
