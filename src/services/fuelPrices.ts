@@ -26,7 +26,7 @@ const fuelPricesEur: Record<string, number> = {
 const dieselPricesEur: Record<string, number> = {
   NL: 1.75, BE: 1.78, DE: 1.72, FR: 1.82, SC: 1.85,
   ES: 1.55, IT: 1.80, PT: 1.68, AT: 1.58, CH: 1.78, HR: 1.48, SI: 1.52,
-  GB: 1.68,
+  GB: 1.68, GR: 1.65,
 };
 
 const lpgPricesEur: Record<string, number> = {
