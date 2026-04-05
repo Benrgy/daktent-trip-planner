@@ -8,10 +8,14 @@ import CostCalculator from "@/components/CostCalculator";
 import WeatherDashboard from "@/components/WeatherDashboard";
 import PackingChecklist from "@/components/PackingChecklist";
 import RouteInfo from "@/components/RouteInfo";
+import CountryInfo from "@/components/CountryInfo";
+import TripSummary from "@/components/TripSummary";
 import { AffiliateTopBanner, AffiliateCTA } from "@/components/AffiliateBanner";
 import { campingSpots, CampingSpot } from "@/data/campingSpots";
 import { fetchOsmCampingSites } from "@/services/overpass";
 import { RouteResult } from "@/services/routing";
+import { useFavorites } from "@/hooks/useFavorites";
+import { saveTripToStorage, loadTripFromStorage, decodeTripFromUrl } from "@/hooks/useSavedTrip";
 
 const Index = () => {
   const [tripConfig, setTripConfig] = useState<TripConfig | null>(null);
@@ -19,10 +23,24 @@ const Index = () => {
   const resultsRef = useRef<HTMLDivElement>(null);
   const [osmSpots, setOsmSpots] = useState<CampingSpot[]>([]);
   const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
+  const { favorites, toggleFavorite, isFavorite } = useFavorites();
+
+  // Load trip from URL or localStorage on mount
+  useEffect(() => {
+    const urlTrip = decodeTripFromUrl();
+    if (urlTrip) {
+      setTripConfig(urlTrip);
+      setFilter(urlTrip.destination || "all");
+      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 300);
+      return;
+    }
+    // Don't auto-load from localStorage — just keep it for next visit
+  }, []);
 
   const handleGenerate = (config: TripConfig) => {
     setTripConfig(config);
     setFilter(config.destination || "all");
+    saveTripToStorage(config);
     setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
   };
 
@@ -30,7 +48,6 @@ const Index = () => {
     document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  // Fetch OSM camping spots when destination changes
   useEffect(() => {
     if (!tripConfig?.destination) return;
     const existingIds = new Set(campingSpots.map(s => s.id));
@@ -43,6 +60,7 @@ const Index = () => {
     if (filter === "all") return true;
     if (filter === "free") return s.type === "free";
     if (filter === "paid") return s.type === "paid";
+    if (filter === "favorites") return favorites.has(s.id);
     return s.countryCode === filter;
   });
 
@@ -53,14 +71,27 @@ const Index = () => {
       <Hero onStart={handleStart} />
       <TripWizard onGenerate={handleGenerate} />
 
-      {/* Results */}
       <div ref={resultsRef}>
         {tripConfig && (
           <>
+            {/* Trip summary bar */}
+            <section className="border-b border-border py-4 px-4 print:hidden">
+              <div className="container mx-auto max-w-3xl">
+                <TripSummary config={tripConfig} routeResult={routeResult} />
+              </div>
+            </section>
+
             {/* Route info */}
             <section className="border-b border-border py-8 px-4">
               <div className="container mx-auto max-w-3xl">
                 <RouteInfo config={tripConfig} onRouteCalculated={setRouteResult} />
+              </div>
+            </section>
+
+            {/* Country info */}
+            <section className="border-b border-border py-8 px-4">
+              <div className="container mx-auto max-w-3xl">
+                <CountryInfo countryCode={tripConfig.destination} />
               </div>
             </section>
 
@@ -75,7 +106,12 @@ const Index = () => {
                 <div className="mb-4">
                   <SpotFilters filter={filter} onFilterChange={setFilter} />
                 </div>
-                <CampingMap spots={filteredSpots} routeGeometry={routeResult?.geometry} />
+                <CampingMap
+                  spots={filteredSpots}
+                  routeGeometry={routeResult?.geometry}
+                  favorites={favorites}
+                  onToggleFavorite={toggleFavorite}
+                />
               </div>
             </section>
 
@@ -87,8 +123,7 @@ const Index = () => {
         )}
       </div>
 
-      {/* Footer */}
-      {/* FAQ Section — powers AI Overviews & reduces bounce */}
+      {/* FAQ Section */}
       <section id="faq" className="border-t border-border bg-muted/20 py-16 px-4">
         <div className="container mx-auto max-w-3xl">
           <h2 className="mb-8 font-display text-2xl font-bold text-foreground">Veelgestelde vragen</h2>
@@ -108,7 +143,7 @@ const Index = () => {
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
               <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Welke landen en kampeerplekken worden ondersteund?</summary>
               <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We hebben 40+ kampeerplekken in Nederland, België, Duitsland, Frankrijk, Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië, Noorwegen en Zweden. Elke locatie bevat info over wildcamping regelgeving, voorzieningen en kosten.</p>
+                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We hebben 45+ kampeerplekken in Nederland, België, Duitsland, Frankrijk, Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië, Noorwegen, Zweden, Engeland en Griekenland. Elke locatie bevat info over wildcamping regelgeving, voorzieningen en kosten.</p>
               </div>
             </details>
             <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
