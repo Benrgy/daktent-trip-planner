@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { TripConfig } from "./TripWizard";
 import { geocode } from "@/services/geocoding";
 import { getRoute, formatDuration, RouteResult } from "@/services/routing";
-import { getFuelPrices } from "@/services/fuelPrices";
+import { calculateEnergyCost, isElectric } from "@/services/energyCost";
 import { campingSpots } from "@/data/campingSpots";
-import { Car, Clock, MapPin, Loader2 } from "lucide-react";
+import { Car, Clock, MapPin, Loader2, Zap } from "lucide-react";
 
 interface Props {
   config: TripConfig;
