@@ -1,22 +1,31 @@
 
 
-## GitHub Actions Workflow voor Automatische GitHub Pages Deployment
+# Favicon Ontwerp voor DaktentTripPlanner
 
-### Wat wordt gebouwd
-Een GitHub Actions workflow bestand dat bij elke push naar de `main` branch automatisch de app bouwt en deployed naar GitHub Pages.
+## Probleem
+De site toont nu de standaard Lovable favicon. Er is een `public/favicon.ico` maar dit is waarschijnlijk de Lovable default.
 
-### Technische Details
+## Plan
 
-**Nieuw bestand:** `.github/workflows/deploy.yml`
+### 1. Genereer een custom favicon
+Gebruik de AI image generation API om een favicon te ontwerpen dat past bij DaktentTripPlanner:
+- **Concept**: Een daktent (rooftop tent) silhouet op een auto, met een kampeer/natuur-element
+- **Stijl**: Minimalistisch, herkenbaar op klein formaat (16x16, 32x32), met de groene/outdoor kleuren van de site
+- **Formaat**: PNG (512x512), daarna geconverteerd naar .ico en meerdere formaten
 
-Het workflow bestand zal:
-1. Triggeren op push naar `main`
-2. Node.js 20 + npm installeren
-3. `npm ci` en `npm run build` uitvoeren
-4. De `dist/` folder deployen naar GitHub Pages via `actions/deploy-pages@v4`
-5. Permissions instellen voor `pages: write` en `id-token: write`
-6. Environment `github-pages` gebruiken met de juiste URL
+### 2. Bestanden aanmaken
+- Genereer favicon als PNG (512x512)
+- Converteer naar `favicon.ico` (multi-size: 16x16, 32x32, 48x48)
+- Maak ook `favicon-32x32.png` en `apple-touch-icon.png` (180x180) voor betere compatibiliteit
+- Verwijder het oude `public/favicon.ico`
 
-### Vereiste GitHub-instelling
-Na het toevoegen van het bestand moet in de GitHub repository onder **Settings → Pages → Source** de optie **"GitHub Actions"** geselecteerd worden (i.p.v. "Deploy from a branch").
+### 3. Update index.html
+- Update de favicon `<link>` tags met conditionele paden (net als de base URL)
+- Voeg `apple-touch-icon` link toe
+- Voeg `favicon-32x32` link toe
+
+### Technische details
+- Favicon wordt gegenereerd via de Nano banana image API
+- ImageMagick (via nix) wordt gebruikt voor conversie naar .ico formaat
+- De favicon link in index.html krijgt het juiste pad voor zowel dev als productie
 
