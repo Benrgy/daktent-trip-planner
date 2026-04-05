@@ -89,13 +89,13 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
             <h3 className="text-sm font-semibold text-foreground">Brandstofprijzen {prices.country}</h3>
           </div>
           <div className="grid grid-cols-2 gap-4 text-sm">
-            <div className="flex justify-between">
+            <div className={`flex justify-between ${config.fuelType === "benzine" ? "font-semibold" : ""}`}>
               <span className="text-muted-foreground">Benzine (Euro 95)</span>
-              <span className="font-semibold text-foreground">€{prices.benzine.toFixed(2)}/L</span>
+              <span className="text-foreground">€{prices.benzine.toFixed(2)}/L</span>
             </div>
-            <div className="flex justify-between">
+            <div className={`flex justify-between ${config.fuelType === "diesel" ? "font-semibold" : ""}`}>
               <span className="text-muted-foreground">Diesel</span>
-              <span className="font-semibold text-foreground">€{prices.diesel.toFixed(2)}/L</span>
+              <span className="text-foreground">€{prices.diesel.toFixed(2)}/L</span>
             </div>
           </div>
           <p className="mt-2 text-[10px] text-muted-foreground">Bron: {prices.source} · {totalKm} km × {(fuelRates[config.carType] || 8)}L/100km × €{fuelPrice.toFixed(2)}/L = €{fuelCost}</p>
