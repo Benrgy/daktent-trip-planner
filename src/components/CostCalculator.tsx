@@ -3,13 +3,14 @@ import { TripConfig } from "./TripWizard";
 import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
 import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
+import { getCountryData } from "@/data/countryData";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Printer, Ship } from "lucide-react";
+import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Ship } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
-const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200 };
+const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200, GR: 250 };
 
 /** Vignette prices per country (EUR) */
 const vignetPrices: Record<string, { price: number; label: string }> = {
@@ -60,7 +61,9 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     : 12;
   const campingCost = Math.round((localCampingPrice ?? avgCampCost) * config.days);
   const foodCost = Math.round(config.people * config.days * (localFoodBudget ?? 25));
-  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI", "GB"].includes(config.destination) ? Math.round(config.days * 8 * multiplier) : 0;
+  const countryInfo = getCountryData(config.destination);
+  const tollPerKm = countryInfo?.tollPerKm ?? 0;
+  const tollCost = tollPerKm > 0 ? Math.round(totalKm * tollPerKm) : 0;
   const vignet = vignetPrices[config.destination];
   const vignetCost = vignet ? vignet.price : 0;
   const ferry = ferryCosts[config.destination];
@@ -87,7 +90,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     setLocalFoodBudget(null);
   };
 
-  const handlePrint = () => window.print();
+  
 
   return (
     <section id="kosten" className="border-b border-border py-16 px-4 print:border-none print:py-4">
@@ -95,9 +98,6 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
         <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 3</div>
         <div className="flex items-center justify-between mb-1">
           <h2 className="font-display text-2xl font-bold text-foreground">Kostenberekening</h2>
-          <Button variant="ghost" size="sm" onClick={handlePrint} className="gap-1.5 text-xs print:hidden">
-            <Printer className="h-3.5 w-3.5" /> Print
-          </Button>
         </div>
         <p className="mb-8 text-sm text-muted-foreground">
           Geschatte kosten voor een {config.days}-daagse trip met {config.people} {config.people === 1 ? "persoon" : "personen"}

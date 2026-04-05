@@ -52,8 +52,9 @@ export const packingCategories: Record<string, PackingItem[]> = {
     { id: "e4", name: "Ducttape", category: "Noodgevallen" },
     { id: "e5", name: "Insectenspray", category: "Noodgevallen" },
     { id: "e6", name: "Zonnebrandcrème", category: "Noodgevallen" },
-    { id: "e7", name: "Muggenspray (extra sterk)", category: "Noodgevallen", destinations: ["ES", "IT", "PT", "HR", "SI", "FR"] },
+    { id: "e7", name: "Muggenspray (extra sterk)", category: "Noodgevallen", destinations: ["ES", "IT", "PT", "HR", "SI", "FR", "GR"] },
     { id: "e8", name: "Tekenpen / tekentang", category: "Noodgevallen", destinations: ["DE", "AT", "CH", "SI", "HR", "SC"] },
+    { id: "e9", name: "Extra zonnebrandcrème (factor 50+)", category: "Noodgevallen", destinations: ["GR", "ES", "PT", "IT"] },
   ],
   "Documenten": [
     { id: "doc1", name: "Paspoort / ID", category: "Documenten" },
@@ -64,6 +65,7 @@ export const packingCategories: Record<string, PackingItem[]> = {
     { id: "doc6", name: "Vignet (vooraf kopen!)", category: "Documenten", destinations: ["CH", "AT", "SI"] },
     { id: "doc7", name: "UK-stekker adapter (Type G)", category: "Documenten", destinations: ["GB"] },
     { id: "doc8", name: "Veerboot / Kanaaltunnel ticket", category: "Documenten", destinations: ["GB", "SC"] },
+    { id: "doc9", name: "Stekker adapter (Type C/F)", category: "Documenten", destinations: ["GR"] },
   ],
   "Winteruitrusting": [
     { id: "w1", name: "Sneeuwkettingen", category: "Winteruitrusting", season: "winter" },

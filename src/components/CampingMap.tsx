@@ -13,20 +13,16 @@ L.Icon.Default.mergeOptions({
 const freeIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-green.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
+  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
 });
 
 const paidIcon = new L.Icon({
   iconUrl: "https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-blue.png",
   shadowUrl: "https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/images/marker-shadow.png",
-  iconSize: [25, 41],
-  iconAnchor: [12, 41],
-  popupAnchor: [1, -34],
+  iconSize: [25, 41], iconAnchor: [12, 41], popupAnchor: [1, -34],
 });
 
-function buildPopupHtml(spot: CampingSpot): string {
+function buildPopupHtml(spot: CampingSpot, isFav: boolean): string {
   const priceLabel = spot.type === "free"
     ? '<span style="background:#f0fdf4;color:#15803d;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500">Gratis</span>'
     : `<span style="background:#eff6ff;color:#1d4ed8;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500">€${spot.pricePerNight}/nacht</span>`;
@@ -40,9 +36,11 @@ function buildPopupHtml(spot: CampingSpot): string {
     ? '<div style="margin-top:4px"><span style="background:#f0fdf4;color:#15803d;padding:2px 6px;border-radius:4px;font-size:11px;font-weight:500">Daktent vriendelijk</span></div>'
     : '';
 
+  const favBtn = `<button data-fav-id="${spot.id}" style="background:none;border:none;cursor:pointer;font-size:18px;padding:2px;margin-left:4px" title="Favoriet">${isFav ? "❤️" : "🤍"}</button>`;
+
   return `
     <div style="font-size:12px;line-height:1.5;max-width:220px">
-      <h3 style="font-size:14px;font-weight:600;margin:0 0 4px">${spot.name}</h3>
+      <h3 style="font-size:14px;font-weight:600;margin:0 0 4px;display:flex;align-items:center">${spot.name}${favBtn}</h3>
       <div style="display:flex;align-items:center;gap:8px;margin-bottom:4px">
         ${priceLabel}
         <span style="color:#92400e">⭐ ${spot.rating}</span>
@@ -58,77 +56,75 @@ function buildPopupHtml(spot: CampingSpot): string {
 interface CampingMapProps {
   spots: CampingSpot[];
   routeGeometry?: [number, number][];
+  favorites?: Set<number>;
+  onToggleFavorite?: (id: number) => void;
 }
 
-const CampingMap = ({ spots, routeGeometry }: CampingMapProps) => {
+const CampingMap = ({ spots, routeGeometry, favorites = new Set(), onToggleFavorite }: CampingMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
   const routeLayerRef = useRef<L.Polyline | null>(null);
 
-  // Initialize map once
   useEffect(() => {
     if (!containerRef.current || mapRef.current) return;
-
-    const map = L.map(containerRef.current, {
-      center: [51.5, 5.5],
-      zoom: 6,
-      scrollWheelZoom: false,
-    });
-
+    const map = L.map(containerRef.current, { center: [51.5, 5.5], zoom: 6, scrollWheelZoom: false });
     L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
       attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>',
     }).addTo(map);
-
     markersRef.current = L.layerGroup().addTo(map);
     mapRef.current = map;
-
-    return () => {
-      map.remove();
-      mapRef.current = null;
-      markersRef.current = null;
-    };
+    return () => { map.remove(); mapRef.current = null; markersRef.current = null; };
   }, []);
 
-  // Update markers when spots change
   useEffect(() => {
     const map = mapRef.current;
     const markers = markersRef.current;
     if (!map || !markers) return;
-
     markers.clearLayers();
 
     spots.forEach(spot => {
-      const marker = L.marker([spot.lat, spot.lng], {
-        icon: spot.type === "free" ? freeIcon : paidIcon,
-      });
-      marker.bindPopup(buildPopupHtml(spot), { maxWidth: 240 });
+      const marker = L.marker([spot.lat, spot.lng], { icon: spot.type === "free" ? freeIcon : paidIcon });
+      marker.bindPopup(buildPopupHtml(spot, favorites.has(spot.id)), { maxWidth: 240 });
       markers.addLayer(marker);
     });
+
+    // Listen for favorite button clicks
+    if (onToggleFavorite) {
+      map.on("popupopen", (e: any) => {
+        const popup = e.popup;
+        const container = popup.getElement();
+        if (!container) return;
+        const btn = container.querySelector("[data-fav-id]") as HTMLElement;
+        if (btn) {
+          btn.onclick = () => {
+            const id = parseInt(btn.getAttribute("data-fav-id") || "0");
+            onToggleFavorite(id);
+            // Re-open popup with updated state
+            const spot = spots.find(s => s.id === id);
+            if (spot) {
+              const newFav = !favorites.has(id);
+              const newFavSet = new Set(favorites);
+              if (newFav) newFavSet.add(id); else newFavSet.delete(id);
+              popup.setContent(buildPopupHtml(spot, newFavSet.has(id)));
+            }
+          };
+        }
+      });
+    }
 
     if (spots.length > 0) {
       const bounds = L.latLngBounds(spots.map(s => [s.lat, s.lng]));
       map.fitBounds(bounds, { padding: [40, 40] });
     }
-  }, [spots]);
+  }, [spots, favorites]);
 
-  // Draw route polyline
   useEffect(() => {
     const map = mapRef.current;
     if (!map) return;
-
-    if (routeLayerRef.current) {
-      map.removeLayer(routeLayerRef.current);
-      routeLayerRef.current = null;
-    }
-
+    if (routeLayerRef.current) { map.removeLayer(routeLayerRef.current); routeLayerRef.current = null; }
     if (routeGeometry && routeGeometry.length > 1) {
-      const polyline = L.polyline(routeGeometry, {
-        color: "#2563eb",
-        weight: 3,
-        opacity: 0.7,
-        dashArray: "8 4",
-      }).addTo(map);
+      const polyline = L.polyline(routeGeometry, { color: "#2563eb", weight: 3, opacity: 0.7, dashArray: "8 4" }).addTo(map);
       routeLayerRef.current = polyline;
     }
   }, [routeGeometry]);

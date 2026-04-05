@@ -9,6 +9,7 @@ const filters = [
   { id: "all", label: "Alles" },
   { id: "free", label: "Gratis" },
   { id: "paid", label: "Betaald" },
+  { id: "favorites", label: "❤️ Favorieten" },
   { id: "NL", label: "Nederland" },
   { id: "BE", label: "België" },
   { id: "DE", label: "Duitsland" },
@@ -22,6 +23,7 @@ const filters = [
   { id: "HR", label: "Kroatië" },
   { id: "SI", label: "Slovenië" },
   { id: "GB", label: "Engeland" },
+  { id: "GR", label: "Griekenland" },
 ];
 
 const SpotFilters = ({ filter, onFilterChange }: Props) => (
