@@ -62,7 +62,7 @@ describe("CostCalculator", () => {
     const gbConfig = { ...mockConfig, destination: "GB" };
     render(<CostCalculator config={gbConfig} spots={campingSpots.filter(s => s.countryCode === "GB")} />);
     expect(screen.getAllByText("Kanaaltunnel / Veerboot").length).toBeGreaterThanOrEqual(1);
-    expect(screen.getByText(/€180/)).toBeInTheDocument();
+    expect(screen.getAllByText(/€180/).length).toBeGreaterThanOrEqual(1);
   });
 
   it("shows ferry cost for Scandinavia", () => {
