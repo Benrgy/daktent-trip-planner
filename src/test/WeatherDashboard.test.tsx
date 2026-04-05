@@ -11,6 +11,11 @@ const mockConfig = {
   people: 2,
   preferences: ["natuur"],
   customConsumption: null,
+  customFuelPrice: null,
+  customElectricityPrice: null,
+  customCampingPrice: null,
+  customFoodBudget: null,
+  includeReturnTrip: false,
 };
 
 describe("WeatherDashboard", () => {
