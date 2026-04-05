@@ -123,11 +123,12 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
             </div>
             <div>
               <Label className="mb-1.5 text-sm font-medium">Brandstof</Label>
-              <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel") => setConfig(prev => ({ ...prev, fuelType: v }))}>
+              <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel" | "lpg") => setConfig(prev => ({ ...prev, fuelType: v }))}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
                   <SelectItem value="benzine">Benzine</SelectItem>
                   <SelectItem value="diesel">Diesel</SelectItem>
+                  <SelectItem value="lpg">LPG</SelectItem>
                 </SelectContent>
               </Select>
             </div>
