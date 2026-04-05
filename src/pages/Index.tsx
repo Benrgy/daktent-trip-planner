@@ -57,18 +57,25 @@ const Index = () => {
       <div ref={resultsRef}>
         {tripConfig && (
           <>
+            {/* Route info */}
+            <section className="border-b border-border py-8 px-4">
+              <div className="container mx-auto max-w-3xl">
+                <RouteInfo config={tripConfig} onRouteCalculated={setRouteResult} />
+              </div>
+            </section>
+
             {/* Map section */}
             <section id="spots" className="border-b border-border bg-muted/30 py-16 px-4">
               <div className="container mx-auto max-w-3xl">
                 <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 2</div>
                 <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Kampeerplekken</h2>
                 <p className="mb-6 text-sm text-muted-foreground">
-                  {filteredSpots.length} locaties gevonden — klik op een marker voor details.
+                  {filteredSpots.length} locaties gevonden{osmSpots.length > 0 ? ` (waarvan ${osmSpots.filter(s => filter === "all" || s.countryCode === filter || (filter === "free" && s.type === "free") || (filter === "paid" && s.type === "paid")).length} via OpenStreetMap)` : ""} — klik op een marker voor details.
                 </p>
                 <div className="mb-4">
                   <SpotFilters filter={filter} onFilterChange={setFilter} />
                 </div>
-                <CampingMap spots={filteredSpots} />
+                <CampingMap spots={filteredSpots} routeGeometry={routeResult?.geometry} />
               </div>
             </section>
 
