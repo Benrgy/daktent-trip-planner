@@ -1,93 +1,103 @@
 
 
-# Aanpasbare brandstofprijzen + ontbrekende features toevoegen
+# Totaalplan: Alle ontbrekende features in één keer
 
-## Wat er nu mist
+## Overzicht
 
-Na analyse van de volledige codebase vallen de volgende zaken op:
+Na grondige analyse van de volledige codebase zijn dit alle ontbrekende features die een gebruiker verwacht van een complete trip planner. Dit plan voegt ze allemaal in één keer toe.
 
-### 1. Brandstofprijzen zijn niet aanpasbaar
-De prijzen in `fuelPrices.ts` zijn hard-coded. Gebruikers kunnen hun verbruik al aanpassen, maar **niet** de brandstofprijs per liter/kWh. Dit is essentieel omdat prijzen per tankstation en per week fluctueren.
+---
 
-### 2. Ontbrekende features die gebruikers verwachten
+## Wat wordt toegevoegd
 
-| Feature | Status | Impact |
-|---------|--------|--------|
-| Aanpasbare brandstofprijzen | Ontbreekt | Hoog — prijzen veranderen wekelijks |
-| Vignetkosten per land | Alleen "tol" forfait | Hoog — Zwitserland €40, Oostenrijk €10-daags, etc. |
-| Veerpont/tunnel kosten | Ontbreekt | Midden — UK, Scandinavië, eilanden |
-| Campingprijs aanpasbaar | Ontbreekt | Hoog — verschilt enorm per camping |
-| Eten budget aanpasbaar | Hard-coded €25/pp/dag | Midden |
-| Seizoensgebonden paklijst | Altijd dezelfde lijst | Midden — winter vs zomer items |
-| Trip samenvatting delen/printen | Ontbreekt | Hoog — gebruikers willen resultaat bewaren |
-| Terugrit in kostenberekening | Ontbreekt | Hoog — kosten zijn nu enkele reis |
+### A. Trip opslaan & delen
+- **LocalStorage opslag**: Trip configuratie automatisch bewaren, zodat gebruikers hun laatste trip terugzien bij herbezoek
+- **URL-delen**: "Deel trip" knop die configuratie encodeert in een URL-parameter, zodat je een link kunt sturen
+- **Printbare samenvatting**: Dedicated `TripSummary.tsx` component met alle trip details (route, kosten, weer, paklijst) in print-vriendelijk formaat
 
-## Plan van aanpak
+### B. Mobiele navigatie
+- Hamburger menu voor mobiel (nav links zijn nu `hidden sm:flex` — onbereikbaar op telefoon)
+- Sluit automatisch bij klik op link
 
-### Bestand 1: `src/services/fuelPrices.ts`
-- Exporteer de standaard prijzen zodat ze als defaults dienen
-- Geen logica-wijziging nodig, de aanpassing zit in de UI
+### C. Landeninformatie
+- **Snelheidslimieten** per land (snelweg, binnen/buiten bebouwde kom)
+- **Alarmnummers** per land (112 + lokaal)
+- **Rijden in het buitenland tips**: rechtsverkeer UK, winterbanden verplichting, reflecterend hesje, etc.
+- Getoond als uitklapbaar info-paneel per bestemming
 
-### Bestand 2: `src/components/TripWizard.tsx`
-- **TripConfig uitbreiden** met:
-  - `customFuelPrice: number | null` — eigen brandstofprijs
-  - `customElectricityPrice: number | null` — eigen stroomprijs
-  - `customCampingPrice: number | null` — eigen campingprijs per nacht
-  - `customFoodBudget: number | null` — eigen eetbudget per persoon/dag
-  - `includeReturnTrip: boolean` — heen+terug berekening
-- **UI**: Onder de kostenberekening (of als uitklapbaar "Prijzen aanpassen" paneel) invoervelden toevoegen voor:
-  - Brandstofprijs (€/L) met placeholder = landgemiddelde
-  - Stroompijs (€/kWh) voor EV/PHEV
-  - Campingprijs per nacht
-  - Eetbudget per persoon per dag
-  - Toggle "Inclusief terugrit"
+### D. Tolkosten verbeteren
+- Huidige berekening is een vlak forfait (€8/dag) — vervangen door realistische geschatte tolkosten per land op basis van afstand
+- Bron: gemiddelde tolkosten per km per land
 
-### Bestand 3: `src/components/CostCalculator.tsx`
-- Gebruik `customFuelPrice` / `customElectricityPrice` als override in `calculateEnergyCost`
-- Gebruik `customCampingPrice` als override voor campingkosten
-- Gebruik `customFoodBudget` als override voor eetkosten
-- Vignetkosten toevoegen als aparte post (vaste bedragen per land)
-- Als `includeReturnTrip` aan staat: verdubbel brandstof/tol/vignet
-- Vignetprijzen toevoegen per land:
-  - CH: €42 (jaar), AT: €10 (10-dagen), SI: €15 (7-dagen), CZ: €15 (10-dagen), HR: variabel
+### E. Favoriete campingplekken
+- Hart-icoontje op elke camping marker/popup
+- Opslag in localStorage
+- Filter "Favorieten" in SpotFilters
 
-### Bestand 4: `src/services/energyCost.ts`
-- `calculateEnergyCost` uitbreiden met optionele `customFuelPrice` en `customElectricityPrice` parameters
-- Als custom prijs is opgegeven, gebruik die i.p.v. de landgemiddelde
+### F. Griekenland toevoegen
+- Populaire bestemming die ontbreekt: GR (Griekenland) toevoegen
+- Campingspots, brandstofprijzen, vignet (geen), elektriciteit
 
-### Bestand 5: `src/components/RouteInfo.tsx`
-- Terugrit-optie verwerken: toon enkele of retour afstand/tijd
+### G. Dark mode
+- Toggle in navbar
+- Gebruikt Tailwind `dark:` classes (theme al ondersteund via CSS variabelen)
 
-### Bestand 6: `src/components/PackingChecklist.tsx` + `src/data/packingItems.ts`
-- Seizoensgebonden items toevoegen: extra items voor winter (thermisch ondergoed, sneeuwkettingen, etc.)
-- Bestemmingsafhankelijke items (muggenspray voor Zuid-Europa, etc.)
+### H. Reistijd-planner
+- Bij lange ritten (>6 uur): suggestie voor rustpauzes elke 2 uur
+- Geschatte aankomsttijd op basis van vertrektijd (instelbaar)
 
-### Bestand 7: Nieuw — `src/components/TripSummary.tsx`
-- "Deel je trip" / "Print overzicht" knop
-- Genereert een printbare samenvatting via `window.print()` met alle trip details
+### I. Kampeerregelgeving-overzicht
+- Per land: wildcamping status (legaal/gedoogd/verboden)
+- Maximale verblijfsduur, boetebedragen
+- Getoond als infopaneel bij de kaart
 
-## Technische details
+---
 
-De `TripConfig` interface wordt uitgebreid:
+## Technische aanpak
+
+### Nieuwe bestanden
+1. **`src/components/TripSummary.tsx`** — Printbare samenvatting met alle secties, deel-knop, QR-code
+2. **`src/components/CountryInfo.tsx`** — Landeninfo (snelheid, noodgevallen, rijden-tips, regelgeving)
+3. **`src/data/countryData.ts`** — Gecentraliseerde data: snelheidslimieten, alarmnummers, wildcamping regels, tolkosten/km, rijtips
+4. **`src/hooks/useFavorites.ts`** — localStorage hook voor favoriete spots
+5. **`src/hooks/useSavedTrip.ts`** — localStorage hook voor trip opslaan/laden + URL encoding
+
+### Gewijzigde bestanden
+6. **`src/components/Navbar.tsx`** — Hamburger menu mobiel + dark mode toggle
+7. **`src/components/CostCalculator.tsx`** — Tolkosten op basis van afstand i.p.v. forfait, TripSummary integratie
+8. **`src/components/CampingMap.tsx`** — Favoriet-knop in popup
+9. **`src/components/SpotFilters.tsx`** — "Favorieten" filter toevoegen
+10. **`src/components/TripWizard.tsx`** — Griekenland toevoegen, vertrektijd veld, opgeslagen trip laden
+11. **`src/components/RouteInfo.tsx`** — Rustpauze-suggesties, geschatte aankomsttijd
+12. **`src/services/fuelPrices.ts`** — GR brandstofprijzen
+13. **`src/services/energyCost.ts`** — GR elektriciteitsprijzen
+14. **`src/data/campingSpots.ts`** — 3 Griekse campingspots
+15. **`src/data/packingItems.ts`** — GR-specifieke items (adapter Type C/F, zonbescherming)
+16. **`src/pages/Index.tsx`** — TripSummary, CountryInfo integratie, favorieten state, dark mode provider
+17. **`index.html`** — Dark mode class support op `<html>`
+
+### Data structuur `countryData.ts`
 ```ts
-interface TripConfig {
-  // ... bestaande velden
-  customFuelPrice: number | null;
-  customElectricityPrice: number | null;
-  customCampingPrice: number | null;
-  customFoodBudget: number | null;
-  includeReturnTrip: boolean;
+interface CountryData {
+  speedLimits: { city: number; rural: number; highway: number };
+  emergency: string;
+  drivingTips: string[];
+  wildcamping: { status: "legal" | "tolerated" | "illegal"; details: string; fine?: string };
+  tollPerKm: number; // EUR per km gemiddeld
 }
 ```
 
-De vignetprijzen worden een statische map:
-```ts
-const vignetPrices: Record<string, { price: number; label: string }> = {
-  CH: { price: 42, label: "Vignet (jaar)" },
-  AT: { price: 10, label: "Vignet (10-dagen)" },
-  SI: { price: 15, label: "Vignet (7-dagen)" },
-};
-```
+### URL-delen formaat
+Trip configuratie wordt base64-encoded in `?trip=` parameter. Bij laden wordt de config hersteld en automatisch gegenereerd.
 
-Het "Prijzen aanpassen" paneel wordt een uitklapbare sectie in de CostCalculator, zodat de flow niet verandert maar gevorderde gebruikers alles kunnen finetunen.
+### Dark mode
+Toggle in navbar slaat voorkeur op in localStorage. Voegt `dark` class toe aan `<html>`. Alle bestaande Tailwind kleuren werken al via CSS variabelen.
+
+---
+
+## Wat NIET wordt gedaan (buiten scope)
+- Multi-stop routes (grote architectuurwijziging)
+- Gebruikersaccounts / backend
+- Real-time brandstofprijzen API (geen betrouwbare gratis API)
+- Campingreserveringen
 
