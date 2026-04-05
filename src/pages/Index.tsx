@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import TripWizard, { TripConfig } from "@/components/TripWizard";
@@ -7,13 +7,18 @@ import SpotFilters from "@/components/SpotFilters";
 import CostCalculator from "@/components/CostCalculator";
 import WeatherDashboard from "@/components/WeatherDashboard";
 import PackingChecklist from "@/components/PackingChecklist";
+import RouteInfo from "@/components/RouteInfo";
 import { AffiliateTopBanner, AffiliateCTA } from "@/components/AffiliateBanner";
-import { campingSpots } from "@/data/campingSpots";
+import { campingSpots, CampingSpot } from "@/data/campingSpots";
+import { fetchOsmCampingSites } from "@/services/overpass";
+import { RouteResult } from "@/services/routing";
 
 const Index = () => {
   const [tripConfig, setTripConfig] = useState<TripConfig | null>(null);
   const [filter, setFilter] = useState("all");
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [osmSpots, setOsmSpots] = useState<CampingSpot[]>([]);
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
 
   const handleGenerate = (config: TripConfig) => {
     setTripConfig(config);
@@ -25,7 +30,16 @@ const Index = () => {
     document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const filteredSpots = campingSpots.filter(s => {
+  // Fetch OSM camping spots when destination changes
+  useEffect(() => {
+    if (!tripConfig?.destination) return;
+    const existingIds = new Set(campingSpots.map(s => s.id));
+    fetchOsmCampingSites(tripConfig.destination, existingIds).then(setOsmSpots);
+  }, [tripConfig?.destination]);
+
+  const allSpots = [...campingSpots, ...osmSpots];
+
+  const filteredSpots = allSpots.filter(s => {
     if (filter === "all") return true;
     if (filter === "free") return s.type === "free";
     if (filter === "paid") return s.type === "paid";
@@ -43,22 +57,29 @@ const Index = () => {
       <div ref={resultsRef}>
         {tripConfig && (
           <>
+            {/* Route info */}
+            <section className="border-b border-border py-8 px-4">
+              <div className="container mx-auto max-w-3xl">
+                <RouteInfo config={tripConfig} onRouteCalculated={setRouteResult} />
+              </div>
+            </section>
+
             {/* Map section */}
             <section id="spots" className="border-b border-border bg-muted/30 py-16 px-4">
               <div className="container mx-auto max-w-3xl">
                 <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 2</div>
                 <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Kampeerplekken</h2>
                 <p className="mb-6 text-sm text-muted-foreground">
-                  {filteredSpots.length} locaties gevonden — klik op een marker voor details.
+                  {filteredSpots.length} locaties gevonden{osmSpots.length > 0 ? ` (waarvan ${osmSpots.filter(s => filter === "all" || s.countryCode === filter || (filter === "free" && s.type === "free") || (filter === "paid" && s.type === "paid")).length} via OpenStreetMap)` : ""} — klik op een marker voor details.
                 </p>
                 <div className="mb-4">
                   <SpotFilters filter={filter} onFilterChange={setFilter} />
                 </div>
-                <CampingMap spots={filteredSpots} />
+                <CampingMap spots={filteredSpots} routeGeometry={routeResult?.geometry} />
               </div>
             </section>
 
-            <CostCalculator config={tripConfig} spots={filteredSpots} />
+            <CostCalculator config={tripConfig} spots={filteredSpots} realDistanceKm={routeResult?.distanceKm} />
             <WeatherDashboard config={tripConfig} />
             <PackingChecklist />
             <AffiliateCTA />

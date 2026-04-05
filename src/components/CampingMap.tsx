@@ -57,12 +57,14 @@ function buildPopupHtml(spot: CampingSpot): string {
 
 interface CampingMapProps {
   spots: CampingSpot[];
+  routeGeometry?: [number, number][];
 }
 
-const CampingMap = ({ spots }: CampingMapProps) => {
+const CampingMap = ({ spots, routeGeometry }: CampingMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const routeLayerRef = useRef<L.Polyline | null>(null);
 
   // Initialize map once
   useEffect(() => {
@@ -109,6 +111,27 @@ const CampingMap = ({ spots }: CampingMapProps) => {
       map.fitBounds(bounds, { padding: [40, 40] });
     }
   }, [spots]);
+
+  // Draw route polyline
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (routeLayerRef.current) {
+      map.removeLayer(routeLayerRef.current);
+      routeLayerRef.current = null;
+    }
+
+    if (routeGeometry && routeGeometry.length > 1) {
+      const polyline = L.polyline(routeGeometry, {
+        color: "#2563eb",
+        weight: 3,
+        opacity: 0.7,
+        dashArray: "8 4",
+      }).addTo(map);
+      routeLayerRef.current = polyline;
+    }
+  }, [routeGeometry]);
 
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-card">
