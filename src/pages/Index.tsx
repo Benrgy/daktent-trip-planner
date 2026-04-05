@@ -79,7 +79,7 @@ const Index = () => {
               </div>
             </section>
 
-            <CostCalculator config={tripConfig} spots={filteredSpots} />
+            <CostCalculator config={tripConfig} spots={filteredSpots} realDistanceKm={routeResult?.distanceKm} />
             <WeatherDashboard config={tripConfig} />
             <PackingChecklist />
             <AffiliateCTA />
