@@ -8,7 +8,7 @@ const mockConfig = {
   destination: "NL",
   days: 5,
   budget: 100,
-  carType: "suv", fuelType: "benzine" as const,
+  carType: "suv", fuelType: "benzine" as const, batteryKwh: 60,
   people: 2,
   preferences: ["natuur"],
 };
