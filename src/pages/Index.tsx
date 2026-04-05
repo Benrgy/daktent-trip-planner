@@ -1,4 +1,4 @@
-import { useState, useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
 import TripWizard, { TripConfig } from "@/components/TripWizard";
@@ -7,13 +7,18 @@ import SpotFilters from "@/components/SpotFilters";
 import CostCalculator from "@/components/CostCalculator";
 import WeatherDashboard from "@/components/WeatherDashboard";
 import PackingChecklist from "@/components/PackingChecklist";
+import RouteInfo from "@/components/RouteInfo";
 import { AffiliateTopBanner, AffiliateCTA } from "@/components/AffiliateBanner";
-import { campingSpots } from "@/data/campingSpots";
+import { campingSpots, CampingSpot } from "@/data/campingSpots";
+import { fetchOsmCampingSites } from "@/services/overpass";
+import { RouteResult } from "@/services/routing";
 
 const Index = () => {
   const [tripConfig, setTripConfig] = useState<TripConfig | null>(null);
   const [filter, setFilter] = useState("all");
   const resultsRef = useRef<HTMLDivElement>(null);
+  const [osmSpots, setOsmSpots] = useState<CampingSpot[]>([]);
+  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
 
   const handleGenerate = (config: TripConfig) => {
     setTripConfig(config);
