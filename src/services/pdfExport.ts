@@ -35,7 +35,7 @@ const avgDistPerDay: Record<string, number> = {
   PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200, GR: 250,
 };
 
-export function exportTripPdf(config: TripConfig, routeResult: RouteResult | null) {
+export function exportTripPdf(config: TripConfig, routeResult: RouteResult | null, spots: CampingSpot[] = []) {
   const doc = new jsPDF({ unit: "mm", format: "a4" });
   const pw = 190; // printable width
   let y = 20;
