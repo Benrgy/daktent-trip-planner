@@ -118,6 +118,8 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                   <SelectItem value="medium">Middel (8L/100km)</SelectItem>
                   <SelectItem value="suv">SUV (10L/100km)</SelectItem>
                   <SelectItem value="4x4">4x4 (12L/100km)</SelectItem>
+                  <SelectItem value="hybrid">Hybride (4L/100km)</SelectItem>
+                  <SelectItem value="electric">Elektrisch (18kWh/100km)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
