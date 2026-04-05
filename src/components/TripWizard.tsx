@@ -62,6 +62,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     batteryKwh: 60,
     people: 2,
     preferences: ["natuur"],
+    customConsumption: null,
   });
 
   const togglePref = (id: string) => {
