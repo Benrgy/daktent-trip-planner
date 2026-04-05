@@ -36,8 +36,19 @@ describe("CostCalculator", () => {
   it("calculates toll for France", () => {
     const frConfig = { ...mockConfig, destination: "FR" };
     render(<CostCalculator config={frConfig} spots={campingSpots.filter(s => s.countryCode === "FR")} />);
-    // Tol should have a non-zero value for FR
     const tolElements = screen.getAllByText(/€\d+/);
     expect(tolElements.length).toBeGreaterThan(0);
+  });
+
+  it("shows PHEV dual cost breakdown", () => {
+    const phevConfig = { ...mockConfig, carType: "phev", batteryKwh: 13 };
+    render(<CostCalculator config={phevConfig} spots={campingSpots.filter(s => s.countryCode === "NL")} />);
+    expect(screen.getByText("Brandstof + Stroom")).toBeInTheDocument();
+  });
+
+  it("shows electric cost label for EV", () => {
+    const evConfig = { ...mockConfig, carType: "electric" };
+    render(<CostCalculator config={evConfig} spots={campingSpots.filter(s => s.countryCode === "NL")} />);
+    expect(screen.getByText("Opladen")).toBeInTheDocument();
   });
 });

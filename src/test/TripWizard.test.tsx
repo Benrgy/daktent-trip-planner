@@ -8,7 +8,7 @@ describe("TripWizard", () => {
     expect(screen.getByText("Configureer je trip")).toBeInTheDocument();
     expect(screen.getByPlaceholderText("bijv. Amsterdam")).toBeInTheDocument();
     expect(screen.getByText("Bestemming")).toBeInTheDocument();
-    expect(screen.getByText("Type auto")).toBeInTheDocument();
+    expect(screen.getByText("Type voertuig")).toBeInTheDocument();
     expect(screen.getByText("Voorkeuren")).toBeInTheDocument();
   });
 
@@ -28,7 +28,6 @@ describe("TripWizard", () => {
     render(<TripWizard onGenerate={() => {}} />);
     const input = screen.getByPlaceholderText("bijv. Amsterdam");
     fireEvent.change(input, { target: { value: "Utrecht" } });
-    // Still disabled because destination is not set
     const button = screen.getByRole("button", { name: /genereer route/i });
     expect(button).toBeDisabled();
   });
@@ -37,7 +36,11 @@ describe("TripWizard", () => {
     render(<TripWizard onGenerate={() => {}} />);
     const kust = screen.getByText("Kust");
     fireEvent.click(kust);
-    // Kust label should now have primary styling (selected)
     expect(kust.closest("label")).toHaveClass("border-primary");
+  });
+
+  it("shows consumption label for default car type", () => {
+    render(<TripWizard onGenerate={() => {}} />);
+    expect(screen.getByText("9 L/100km")).toBeInTheDocument();
   });
 });
