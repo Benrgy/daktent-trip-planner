@@ -1,3 +1,4 @@
+# Deploy workflow - uses npm install for lockfile compatibility
 name: Deploy to GitHub Pages
 
 on:
