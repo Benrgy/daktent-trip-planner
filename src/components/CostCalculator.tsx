@@ -15,7 +15,7 @@ interface Props {
 
 const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
   const prices = getFuelPrices(config.destination);
-  const fuelPrice = prices.benzine;
+  const fuelPrice = config.fuelType === "diesel" ? prices.diesel : prices.benzine;
 
   const distPerDay = avgDistPerDay[config.destination] || 150;
   const totalKm = realDistanceKm ?? (distPerDay * config.days);
