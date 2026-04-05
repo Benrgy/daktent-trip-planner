@@ -16,6 +16,7 @@ const mockConfig = {
   customCampingPrice: null,
   customFoodBudget: null,
   includeReturnTrip: false,
+  departureTime: "08:00",
 };
 
 describe("WeatherDashboard", () => {
