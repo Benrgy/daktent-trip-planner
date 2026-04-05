@@ -37,6 +37,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
     days: 5,
     budget: 100,
     carType: "suv",
+    fuelType: "benzine",
     people: 2,
     preferences: ["natuur"],
   });
