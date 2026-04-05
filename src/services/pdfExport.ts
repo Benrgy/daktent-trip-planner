@@ -5,6 +5,7 @@ import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
 import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
 import { getCountryData } from "@/data/countryData";
+import { getFilteredPackingCategories } from "@/data/packingItems";
 
 const destLabels: Record<string, string> = {
   NL: "Nederland", BE: "België", DE: "Duitsland", FR: "Frankrijk",
