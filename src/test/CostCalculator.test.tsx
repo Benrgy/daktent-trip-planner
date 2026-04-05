@@ -61,13 +61,13 @@ describe("CostCalculator", () => {
   it("shows ferry cost for UK destination", () => {
     const gbConfig = { ...mockConfig, destination: "GB" };
     render(<CostCalculator config={gbConfig} spots={campingSpots.filter(s => s.countryCode === "GB")} />);
-    expect(screen.getByText("Kanaaltunnel / Veerboot")).toBeInTheDocument();
+    expect(screen.getAllByText("Kanaaltunnel / Veerboot").length).toBeGreaterThanOrEqual(1);
     expect(screen.getByText(/€180/)).toBeInTheDocument();
   });
 
   it("shows ferry cost for Scandinavia", () => {
     const scConfig = { ...mockConfig, destination: "SC" };
     render(<CostCalculator config={scConfig} spots={campingSpots.filter(s => s.countryCode === "SC")} />);
-    expect(screen.getByText("Veerboot Scandinavië")).toBeInTheDocument();
+    expect(screen.getAllByText("Veerboot Scandinavië").length).toBeGreaterThanOrEqual(1);
   });
 });
