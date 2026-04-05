@@ -107,8 +107,8 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
             </div>
           </div>
 
-          {/* Car & People */}
-          <div className="grid gap-4 sm:grid-cols-2">
+          {/* Car, Fuel & People */}
+          <div className="grid gap-4 sm:grid-cols-3">
             <div>
               <Label className="mb-1.5 text-sm font-medium">Type auto</Label>
               <Select value={config.carType} onValueChange={v => setConfig(prev => ({ ...prev, carType: v }))}>
@@ -118,6 +118,16 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                   <SelectItem value="medium">Middel (8L/100km)</SelectItem>
                   <SelectItem value="suv">SUV (10L/100km)</SelectItem>
                   <SelectItem value="4x4">4x4 (12L/100km)</SelectItem>
+                </SelectContent>
+              </Select>
+            </div>
+            <div>
+              <Label className="mb-1.5 text-sm font-medium">Brandstof</Label>
+              <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel") => setConfig(prev => ({ ...prev, fuelType: v }))}>
+                <SelectTrigger><SelectValue /></SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="benzine">Benzine</SelectItem>
+                  <SelectItem value="diesel">Diesel</SelectItem>
                 </SelectContent>
               </Select>
             </div>
