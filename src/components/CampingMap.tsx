@@ -57,12 +57,14 @@ function buildPopupHtml(spot: CampingSpot): string {
 
 interface CampingMapProps {
   spots: CampingSpot[];
+  routeGeometry?: [number, number][];
 }
 
-const CampingMap = ({ spots }: CampingMapProps) => {
+const CampingMap = ({ spots, routeGeometry }: CampingMapProps) => {
   const containerRef = useRef<HTMLDivElement>(null);
   const mapRef = useRef<L.Map | null>(null);
   const markersRef = useRef<L.LayerGroup | null>(null);
+  const routeLayerRef = useRef<L.Polyline | null>(null);
 
   // Initialize map once
   useEffect(() => {
