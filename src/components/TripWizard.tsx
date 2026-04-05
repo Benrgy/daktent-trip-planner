@@ -6,6 +6,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Slider } from "@/components/ui/slider";
 import { Checkbox } from "@/components/ui/checkbox";
 import { ArrowRight } from "lucide-react";
+import { getValidFuelTypes, getConsumptionRate, getElectricConsumptionRate, hasElectricMotor, isElectric } from "@/services/energyCost";
 
 export interface TripConfig {
   startLocation: string;
@@ -31,6 +32,23 @@ const preferenceOptions = [
   { id: "offgrid", label: "Off-grid" },
 ];
 
+const carTypes = [
+  { value: "small", label: "Klein (stadsauto)" },
+  { value: "medium", label: "Middel (sedan)" },
+  { value: "suv", label: "SUV" },
+  { value: "4x4", label: "4x4 / Camper" },
+  { value: "hybrid", label: "Hybride (HEV)" },
+  { value: "phev", label: "Plug-in hybride" },
+  { value: "electric", label: "Elektrisch" },
+  { value: "motorcycle", label: "Motorfiets" },
+];
+
+const fuelLabels: Record<string, string> = {
+  benzine: "Benzine",
+  diesel: "Diesel",
+  lpg: "LPG",
+};
+
 const TripWizard = ({ onGenerate }: TripWizardProps) => {
   const [config, setConfig] = useState<TripConfig>({
     startLocation: "",
@@ -51,6 +69,33 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
         ? prev.preferences.filter(p => p !== id)
         : [...prev.preferences, id],
     }));
+  };
+
+  const handleCarTypeChange = (v: string) => {
+    const validFuels = getValidFuelTypes(v);
+    setConfig(prev => ({
+      ...prev,
+      carType: v,
+      // Reset fuel type if current one is not valid for new car type
+      fuelType: validFuels.includes(prev.fuelType) ? prev.fuelType : (validFuels[0] as "benzine" | "diesel" | "lpg") ?? "benzine",
+      // Default battery for PHEV
+      batteryKwh: v === "phev" ? 13 : v === "electric" ? prev.batteryKwh : 60,
+    }));
+  };
+
+  const validFuels = getValidFuelTypes(config.carType);
+  const showFuelSelect = validFuels.length > 0;
+  const showBatterySlider = hasElectricMotor(config.carType);
+
+  // Dynamic consumption display
+  const getConsumptionLabel = () => {
+    if (isElectric(config.carType)) {
+      return `${getElectricConsumptionRate(config.carType)} kWh/100km`;
+    }
+    if (config.carType === "phev") {
+      return `${getConsumptionRate(config.carType, config.fuelType)}L + ${getElectricConsumptionRate(config.carType)}kWh /100km`;
+    }
+    return `${getConsumptionRate(config.carType, config.fuelType)} L/100km`;
   };
 
   return (
@@ -109,43 +154,52 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
             </div>
           </div>
 
-          {/* Car, Fuel & People */}
+          {/* Car type & consumption info */}
           <div className="grid gap-4 sm:grid-cols-3">
             <div>
-              <Label className="mb-1.5 text-sm font-medium">Type auto</Label>
-              <Select value={config.carType} onValueChange={v => setConfig(prev => ({ ...prev, carType: v }))}>
+              <Label className="mb-1.5 text-sm font-medium">Type voertuig</Label>
+              <Select value={config.carType} onValueChange={handleCarTypeChange}>
                 <SelectTrigger><SelectValue /></SelectTrigger>
                 <SelectContent>
-                  <SelectItem value="small">Klein (6L/100km)</SelectItem>
-                  <SelectItem value="medium">Middel (8L/100km)</SelectItem>
-                  <SelectItem value="suv">SUV (10L/100km)</SelectItem>
-                  <SelectItem value="4x4">4x4 (12L/100km)</SelectItem>
-                  <SelectItem value="hybrid">Hybride (4L/100km)</SelectItem>
-                  <SelectItem value="electric">Elektrisch (18kWh/100km)</SelectItem>
+                  {carTypes.map(ct => (
+                    <SelectItem key={ct.value} value={ct.value}>{ct.label}</SelectItem>
+                  ))}
                 </SelectContent>
               </Select>
+              <p className="mt-1 text-[11px] text-muted-foreground">{getConsumptionLabel()}</p>
             </div>
-            {config.carType === "electric" ? (
-            <div>
-              <Label className="mb-2 text-sm font-medium">
-                Accucapaciteit: <span className="font-semibold text-foreground">{config.batteryKwh} kWh</span>
-                <span className="ml-1 text-[11px] text-muted-foreground">(~{Math.round((config.batteryKwh / 18) * 100 * 0.85)} km bereik)</span>
-              </Label>
-              <Slider min={30} max={120} step={5} value={[config.batteryKwh]} onValueChange={([v]) => setConfig(prev => ({ ...prev, batteryKwh: v }))} />
-            </div>
-            ) : (
-            <div>
-              <Label className="mb-1.5 text-sm font-medium">Brandstof</Label>
-              <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel" | "lpg") => setConfig(prev => ({ ...prev, fuelType: v }))}>
-                <SelectTrigger><SelectValue /></SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="benzine">Benzine</SelectItem>
-                  <SelectItem value="diesel">Diesel</SelectItem>
-                  <SelectItem value="lpg">LPG</SelectItem>
-                </SelectContent>
-              </Select>
-            </div>
-            )}
+
+            {/* Fuel select or battery slider */}
+            {showBatterySlider ? (
+              <div>
+                <Label className="mb-2 text-sm font-medium">
+                  Accucapaciteit: <span className="font-semibold text-foreground">{config.batteryKwh} kWh</span>
+                  <span className="ml-1 text-[11px] text-muted-foreground">
+                    (~{Math.round((config.batteryKwh / getElectricConsumptionRate(config.carType)) * 100 * 0.85)} km bereik)
+                  </span>
+                </Label>
+                <Slider
+                  min={config.carType === "phev" ? 5 : 30}
+                  max={config.carType === "phev" ? 30 : 120}
+                  step={config.carType === "phev" ? 1 : 5}
+                  value={[config.batteryKwh]}
+                  onValueChange={([v]) => setConfig(prev => ({ ...prev, batteryKwh: v }))}
+                />
+              </div>
+            ) : showFuelSelect ? (
+              <div>
+                <Label className="mb-1.5 text-sm font-medium">Brandstof</Label>
+                <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel" | "lpg") => setConfig(prev => ({ ...prev, fuelType: v }))}>
+                  <SelectTrigger><SelectValue /></SelectTrigger>
+                  <SelectContent>
+                    {validFuels.map(f => (
+                      <SelectItem key={f} value={f}>{fuelLabels[f]}</SelectItem>
+                    ))}
+                  </SelectContent>
+                </Select>
+              </div>
+            ) : null}
+
             <div>
               <Label className="mb-1.5 text-sm font-medium">Aantal personen</Label>
               <Select value={String(config.people)} onValueChange={v => setConfig(prev => ({ ...prev, people: Number(v) }))}>

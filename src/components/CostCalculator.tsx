@@ -1,9 +1,9 @@
 import { TripConfig } from "./TripWizard";
 import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
-import { calculateEnergyCost, isElectric, getElectricityPrice } from "@/services/energyCost";
+import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { ArrowDown, Fuel, Zap } from "lucide-react";
+import { ArrowDown, Fuel, Zap, BatteryCharging } from "lucide-react";
 
 const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150 };
 
@@ -31,10 +31,11 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
   const savings = hotelEquiv - totalCost;
 
   const electric = isElectric(config.carType);
-  const energyLabel = electric ? "Opladen" : "Brandstof";
+  const phev = isPhev(config.carType);
+  const energyLabel = electric ? "Opladen" : phev ? "Brandstof + Stroom" : "Brandstof";
 
   const data = [
-    { name: energyLabel, value: fuelCost, color: electric ? "hsl(142, 60%, 45%)" : "hsl(222, 47%, 31%)" },
+    { name: energyLabel, value: fuelCost, color: electric || phev ? "hsl(142, 60%, 45%)" : "hsl(222, 47%, 31%)" },
     { name: "Camping", value: campingCost, color: "hsl(152, 44%, 42%)" },
     { name: "Eten", value: foodCost, color: "hsl(32, 95%, 44%)" },
     { name: "Tol", value: tollCost, color: "hsl(220, 9%, 46%)" },
@@ -89,9 +90,9 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
         {/* Energy price info */}
         <div className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
           <div className="flex items-center gap-2 mb-2">
-            {electric ? <Zap className="h-4 w-4 text-primary" /> : <Fuel className="h-4 w-4 text-primary" />}
+            {electric || phev ? <Zap className="h-4 w-4 text-primary" /> : <Fuel className="h-4 w-4 text-primary" />}
             <h3 className="text-sm font-semibold text-foreground">
-              {electric ? "Oplaadkosten" : "Brandstofprijzen"} {prices.country}
+              {electric ? "Oplaadkosten" : phev ? "Brandstof + Oplaadkosten" : "Brandstofprijzen"} {prices.country}
             </h3>
           </div>
 
@@ -101,6 +102,22 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
                 <span className="text-muted-foreground">Stroom (publieke lader)</span>
                 <span className="text-foreground">€{elPrice.toFixed(2)}/kWh</span>
               </div>
+            </div>
+          ) : phev ? (
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between font-semibold">
+                <span className="text-muted-foreground">Benzine</span>
+                <span className="text-foreground">€{prices.benzine.toFixed(2)}/L</span>
+              </div>
+              <div className="flex justify-between font-semibold">
+                <span className="text-muted-foreground">Stroom (publieke lader)</span>
+                <span className="text-foreground">€{elPrice.toFixed(2)}/kWh</span>
+              </div>
+              {energy.electricCost !== undefined && (
+                <div className="mt-1 text-[10px] text-muted-foreground">
+                  Brandstof: €{energy.cost - energy.electricCost} + Stroom: €{energy.electricCost} = €{energy.cost} totaal
+                </div>
+              )}
             </div>
           ) : (
             <div className="grid grid-cols-3 gap-4 text-sm">
@@ -119,7 +136,10 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
             </div>
           )}
 
-          <p className="mt-2 text-[10px] text-muted-foreground">Bron: {prices.source} · {energy.label} = €{fuelCost}</p>
+          <p className="mt-2 text-[10px] text-muted-foreground">
+            Bron: {prices.source} · {energy.label} = €{energy.cost - (energy.electricCost ?? 0)}
+            {energy.electricLabel && ` + ${energy.electricLabel} = €${energy.electricCost}`}
+          </p>
         </div>
       </div>
     </section>
