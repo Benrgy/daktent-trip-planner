@@ -6,11 +6,12 @@ import { calculateEnergyCost, isElectric } from "@/services/energyCost";
 import { campingSpots } from "@/data/campingSpots";
 import { Car, Clock, MapPin, Loader2, Zap, BatteryCharging } from "lucide-react";
 
-/** Average EV battery capacity and usable range */
-const EV_BATTERY_KWH = 60; // average EV battery (e.g. Tesla Model 3, ID.4)
 const EV_CONSUMPTION = 18; // kWh/100km
-const EV_RANGE_KM = Math.round((EV_BATTERY_KWH / EV_CONSUMPTION) * 100 * 0.85); // 85% usable
 const CHARGE_TIME_MIN = 30; // avg DC fast charge stop
+
+function getEvRange(batteryKwh: number): number {
+  return Math.round((batteryKwh / EV_CONSUMPTION) * 100 * 0.85);
+}
 
 interface Props {
   config: TripConfig;
