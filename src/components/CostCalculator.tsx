@@ -9,13 +9,19 @@ import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
 
-const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150 };
+const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150, GB: 200 };
 
 /** Vignette prices per country (EUR) */
 const vignetPrices: Record<string, { price: number; label: string }> = {
   CH: { price: 42, label: "Vignet (jaar)" },
   AT: { price: 10, label: "Vignet (10-dagen)" },
   SI: { price: 15, label: "Vignet (7-dagen)" },
+};
+
+/** Ferry/tunnel costs per country (EUR, return price) */
+const ferryCosts: Record<string, { price: number; label: string; description: string }> = {
+  GB: { price: 180, label: "Kanaaltunnel / Veerboot", description: "Calais–Dover retour (auto + passagiers)" },
+  SC: { price: 250, label: "Veerboot Scandinavië", description: "Puttgarden–Rødby of Rostock–Gedser retour" },
 };
 
 interface Props {
