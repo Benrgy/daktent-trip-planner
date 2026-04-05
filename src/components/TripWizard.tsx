@@ -118,9 +118,12 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                   <SelectItem value="medium">Middel (8L/100km)</SelectItem>
                   <SelectItem value="suv">SUV (10L/100km)</SelectItem>
                   <SelectItem value="4x4">4x4 (12L/100km)</SelectItem>
+                  <SelectItem value="hybrid">Hybride (4L/100km)</SelectItem>
+                  <SelectItem value="electric">Elektrisch (18kWh/100km)</SelectItem>
                 </SelectContent>
               </Select>
             </div>
+            {config.carType !== "electric" && (
             <div>
               <Label className="mb-1.5 text-sm font-medium">Brandstof</Label>
               <Select value={config.fuelType} onValueChange={(v: "benzine" | "diesel" | "lpg") => setConfig(prev => ({ ...prev, fuelType: v }))}>
@@ -132,6 +135,7 @@ const TripWizard = ({ onGenerate }: TripWizardProps) => {
                 </SelectContent>
               </Select>
             </div>
+            )}
             <div>
               <Label className="mb-1.5 text-sm font-medium">Aantal personen</Label>
               <Select value={String(config.people)} onValueChange={v => setConfig(prev => ({ ...prev, people: Number(v) }))}>

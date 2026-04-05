@@ -2,9 +2,9 @@ import { useEffect, useState } from "react";
 import { TripConfig } from "./TripWizard";
 import { geocode } from "@/services/geocoding";
 import { getRoute, formatDuration, RouteResult } from "@/services/routing";
-import { getFuelPrices } from "@/services/fuelPrices";
+import { calculateEnergyCost, isElectric } from "@/services/energyCost";
 import { campingSpots } from "@/data/campingSpots";
-import { Car, Clock, MapPin, Loader2 } from "lucide-react";
+import { Car, Clock, MapPin, Loader2, Zap } from "lucide-react";
 
 interface Props {
   config: TripConfig;
@@ -86,9 +86,13 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
             <p className="text-[11px] text-muted-foreground">Rijtijd</p>
           </div>
           <div>
-            <Car className="mx-auto mb-1 h-4 w-4 text-primary" />
-            <p className="text-lg font-bold text-foreground">€{Math.round((route.distanceKm / 100) * ({ small: 6, medium: 8, suv: 10, "4x4": 12 }[config.carType] || 8) * (config.fuelType === "diesel" ? getFuelPrices(config.destination).diesel : config.fuelType === "lpg" ? getFuelPrices(config.destination).lpg : getFuelPrices(config.destination).benzine))}</p>
-            <p className="text-[11px] text-muted-foreground">Brandstof</p>
+            {isElectric(config.carType) ? (
+              <Zap className="mx-auto mb-1 h-4 w-4 text-primary" />
+            ) : (
+              <Car className="mx-auto mb-1 h-4 w-4 text-primary" />
+            )}
+            <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination).cost}</p>
+            <p className="text-[11px] text-muted-foreground">{isElectric(config.carType) ? "Opladen" : "Brandstof"}</p>
           </div>
         </div>
       )}

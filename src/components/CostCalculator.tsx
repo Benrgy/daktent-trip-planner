@@ -1,10 +1,10 @@
 import { TripConfig } from "./TripWizard";
 import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
+import { calculateEnergyCost, isElectric, getElectricityPrice } from "@/services/energyCost";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { ArrowDown, Fuel } from "lucide-react";
+import { ArrowDown, Fuel, Zap } from "lucide-react";
 
-const fuelRates: Record<string, number> = { small: 6, medium: 8, suv: 10, "4x4": 12 };
 const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150 };
 
 interface Props {
@@ -14,13 +14,11 @@ interface Props {
 }
 
 const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
-  const prices = getFuelPrices(config.destination);
-  const fuelPrice = config.fuelType === "diesel" ? prices.diesel : config.fuelType === "lpg" ? prices.lpg : prices.benzine;
-
   const distPerDay = avgDistPerDay[config.destination] || 150;
   const totalKm = realDistanceKm ?? (distPerDay * config.days);
-  const fuelLiters = (totalKm / 100) * (fuelRates[config.carType] || 8);
-  const fuelCost = Math.round(fuelLiters * fuelPrice);
+
+  const energy = calculateEnergyCost(totalKm, config.carType, config.fuelType, config.destination);
+  const fuelCost = energy.cost;
 
   const avgCampCost = spots.length > 0
     ? spots.reduce((sum, s) => sum + s.pricePerNight, 0) / spots.length
@@ -32,12 +30,18 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
   const hotelEquiv = config.days * config.people * 85;
   const savings = hotelEquiv - totalCost;
 
+  const electric = isElectric(config.carType);
+  const energyLabel = electric ? "Opladen" : "Brandstof";
+
   const data = [
-    { name: "Brandstof", value: fuelCost, color: "hsl(222, 47%, 31%)" },
+    { name: energyLabel, value: fuelCost, color: electric ? "hsl(142, 60%, 45%)" : "hsl(222, 47%, 31%)" },
     { name: "Camping", value: campingCost, color: "hsl(152, 44%, 42%)" },
     { name: "Eten", value: foodCost, color: "hsl(32, 95%, 44%)" },
     { name: "Tol", value: tollCost, color: "hsl(220, 9%, 46%)" },
   ];
+
+  const prices = getFuelPrices(config.destination);
+  const elPrice = getElectricityPrice(config.destination);
 
   return (
     <section id="kosten" className="border-b border-border py-16 px-4">
@@ -82,27 +86,40 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
           </div>
         </div>
 
-        {/* Fuel price info */}
+        {/* Energy price info */}
         <div className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
           <div className="flex items-center gap-2 mb-2">
-            <Fuel className="h-4 w-4 text-primary" />
-            <h3 className="text-sm font-semibold text-foreground">Brandstofprijzen {prices.country}</h3>
+            {electric ? <Zap className="h-4 w-4 text-primary" /> : <Fuel className="h-4 w-4 text-primary" />}
+            <h3 className="text-sm font-semibold text-foreground">
+              {electric ? "Oplaadkosten" : "Brandstofprijzen"} {prices.country}
+            </h3>
           </div>
-          <div className="grid grid-cols-3 gap-4 text-sm">
-            <div className={`flex justify-between ${config.fuelType === "benzine" ? "font-semibold" : ""}`}>
-              <span className="text-muted-foreground">Benzine</span>
-              <span className="text-foreground">€{prices.benzine.toFixed(2)}/L</span>
+
+          {electric ? (
+            <div className="text-sm">
+              <div className="flex justify-between font-semibold">
+                <span className="text-muted-foreground">Stroom (publieke lader)</span>
+                <span className="text-foreground">€{elPrice.toFixed(2)}/kWh</span>
+              </div>
             </div>
-            <div className={`flex justify-between ${config.fuelType === "diesel" ? "font-semibold" : ""}`}>
-              <span className="text-muted-foreground">Diesel</span>
-              <span className="text-foreground">€{prices.diesel.toFixed(2)}/L</span>
+          ) : (
+            <div className="grid grid-cols-3 gap-4 text-sm">
+              <div className={`flex justify-between ${config.fuelType === "benzine" ? "font-semibold" : ""}`}>
+                <span className="text-muted-foreground">Benzine</span>
+                <span className="text-foreground">€{prices.benzine.toFixed(2)}/L</span>
+              </div>
+              <div className={`flex justify-between ${config.fuelType === "diesel" ? "font-semibold" : ""}`}>
+                <span className="text-muted-foreground">Diesel</span>
+                <span className="text-foreground">€{prices.diesel.toFixed(2)}/L</span>
+              </div>
+              <div className={`flex justify-between ${config.fuelType === "lpg" ? "font-semibold" : ""}`}>
+                <span className="text-muted-foreground">LPG</span>
+                <span className="text-foreground">€{prices.lpg.toFixed(2)}/L</span>
+              </div>
             </div>
-            <div className={`flex justify-between ${config.fuelType === "lpg" ? "font-semibold" : ""}`}>
-              <span className="text-muted-foreground">LPG</span>
-              <span className="text-foreground">€{prices.lpg.toFixed(2)}/L</span>
-            </div>
-          </div>
-          <p className="mt-2 text-[10px] text-muted-foreground">Bron: {prices.source} · {totalKm} km × {(fuelRates[config.carType] || 8)}L/100km × €{fuelPrice.toFixed(2)}/L = €{fuelCost}</p>
+          )}
+
+          <p className="mt-2 text-[10px] text-muted-foreground">Bron: {prices.source} · {energy.label} = €{fuelCost}</p>
         </div>
       </div>
     </section>
