@@ -30,7 +30,16 @@ const Index = () => {
     document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
   };
 
-  const filteredSpots = campingSpots.filter(s => {
+  // Fetch OSM camping spots when destination changes
+  useEffect(() => {
+    if (!tripConfig?.destination) return;
+    const existingIds = new Set(campingSpots.map(s => s.id));
+    fetchOsmCampingSites(tripConfig.destination, existingIds).then(setOsmSpots);
+  }, [tripConfig?.destination]);
+
+  const allSpots = [...campingSpots, ...osmSpots];
+
+  const filteredSpots = allSpots.filter(s => {
     if (filter === "all") return true;
     if (filter === "free") return s.type === "free";
     if (filter === "paid") return s.type === "paid";
