@@ -60,10 +60,12 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     : 12;
   const campingCost = Math.round((localCampingPrice ?? avgCampCost) * config.days);
   const foodCost = Math.round(config.people * config.days * (localFoodBudget ?? 25));
-  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI"].includes(config.destination) ? Math.round(config.days * 8 * multiplier) : 0;
+  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI", "GB"].includes(config.destination) ? Math.round(config.days * 8 * multiplier) : 0;
   const vignet = vignetPrices[config.destination];
   const vignetCost = vignet ? vignet.price : 0;
-  const totalCost = fuelCost + campingCost + foodCost + tollCost + vignetCost;
+  const ferry = ferryCosts[config.destination];
+  const ferryCost = ferry ? ferry.price : 0;
+  const totalCost = fuelCost + campingCost + foodCost + tollCost + vignetCost + ferryCost;
   const hotelEquiv = config.days * config.people * 85;
   const savings = hotelEquiv - totalCost;
 
@@ -75,6 +77,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
     { name: "Eten", value: foodCost, color: "hsl(32, 95%, 44%)" },
     { name: "Tol", value: tollCost, color: "hsl(220, 9%, 46%)" },
     ...(vignetCost > 0 ? [{ name: vignet!.label, value: vignetCost, color: "hsl(280, 40%, 50%)" }] : []),
+    ...(ferryCost > 0 ? [{ name: ferry!.label, value: ferryCost, color: "hsl(200, 60%, 45%)" }] : []),
   ];
 
   const resetPrices = () => {
