@@ -10,11 +10,12 @@ const FUEL_PRICE = 2.05;
 interface Props {
   config: TripConfig;
   spots: CampingSpot[];
+  realDistanceKm?: number;
 }
 
-const CostCalculator = ({ config, spots }: Props) => {
+const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
   const distPerDay = avgDistPerDay[config.destination] || 150;
-  const totalKm = distPerDay * config.days;
+  const totalKm = realDistanceKm ?? (distPerDay * config.days);
   const fuelLiters = (totalKm / 100) * (fuelRates[config.carType] || 8);
   const fuelCost = Math.round(fuelLiters * FUEL_PRICE);
 
