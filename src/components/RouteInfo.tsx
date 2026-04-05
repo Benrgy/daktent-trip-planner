@@ -6,11 +6,12 @@ import { calculateEnergyCost, isElectric } from "@/services/energyCost";
 import { campingSpots } from "@/data/campingSpots";
 import { Car, Clock, MapPin, Loader2, Zap, BatteryCharging } from "lucide-react";
 
-/** Average EV battery capacity and usable range */
-const EV_BATTERY_KWH = 60; // average EV battery (e.g. Tesla Model 3, ID.4)
 const EV_CONSUMPTION = 18; // kWh/100km
-const EV_RANGE_KM = Math.round((EV_BATTERY_KWH / EV_CONSUMPTION) * 100 * 0.85); // 85% usable
 const CHARGE_TIME_MIN = 30; // avg DC fast charge stop
+
+function getEvRange(batteryKwh: number): number {
+  return Math.round((batteryKwh / EV_CONSUMPTION) * 100 * 0.85);
+}
 
 interface Props {
   config: TripConfig;
@@ -101,23 +102,32 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
               <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination).cost}</p>
               <p className="text-[11px] text-muted-foreground">{isElectric(config.carType) ? "Opladen" : "Brandstof"}</p>
             </div>
-            {isElectric(config.carType) && (
-              <div>
-                <BatteryCharging className="mx-auto mb-1 h-4 w-4 text-primary" />
-                <p className="text-lg font-bold text-foreground">{Math.max(0, Math.ceil(route.distanceKm / EV_RANGE_KM) - 1)}×</p>
-                <p className="text-[11px] text-muted-foreground">Laadstops</p>
-              </div>
-            )}
+            {isElectric(config.carType) && (() => {
+              const evRange = getEvRange(config.batteryKwh);
+              const stops = Math.max(0, Math.ceil(route.distanceKm / evRange) - 1);
+              return (
+                <div>
+                  <BatteryCharging className="mx-auto mb-1 h-4 w-4 text-primary" />
+                  <p className="text-lg font-bold text-foreground">{stops}×</p>
+                  <p className="text-[11px] text-muted-foreground">Laadstops</p>
+                </div>
+              );
+            })()}
           </div>
 
-          {isElectric(config.carType) && route.distanceKm > EV_RANGE_KM && (
-            <div className="mt-3 rounded-md bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
-              <span className="font-medium text-foreground">⚡ EV Info:</span>{" "}
-              Geschat bereik ~{EV_RANGE_KM} km (accu {EV_BATTERY_KWH} kWh, 85% bruikbaar). 
-              {" "}{Math.max(0, Math.ceil(route.distanceKm / EV_RANGE_KM) - 1)} laadstop(s) van ~{CHARGE_TIME_MIN} min (DC snellader), 
-              totaal ~{formatDuration(route.durationMinutes + (Math.max(0, Math.ceil(route.distanceKm / EV_RANGE_KM) - 1)) * CHARGE_TIME_MIN)} incl. laden.
-            </div>
-          )}
+          {isElectric(config.carType) && (() => {
+            const evRange = getEvRange(config.batteryKwh);
+            const stops = Math.max(0, Math.ceil(route.distanceKm / evRange) - 1);
+            if (route.distanceKm <= evRange) return null;
+            return (
+              <div className="mt-3 rounded-md bg-muted/50 px-3 py-2 text-[11px] text-muted-foreground">
+                <span className="font-medium text-foreground">⚡ EV Info:</span>{" "}
+                Geschat bereik ~{evRange} km (accu {config.batteryKwh} kWh, 85% bruikbaar). 
+                {" "}{stops} laadstop(s) van ~{CHARGE_TIME_MIN} min (DC snellader), 
+                totaal ~{formatDuration(route.durationMinutes + stops * CHARGE_TIME_MIN)} incl. laden.
+              </div>
+            );
+          })()}
         </>
       )}
     </div>
