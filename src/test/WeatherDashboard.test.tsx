@@ -10,6 +10,7 @@ const mockConfig = {
   carType: "suv", fuelType: "benzine" as const, batteryKwh: 60,
   people: 2,
   preferences: ["natuur"],
+  customConsumption: null,
 };
 
 describe("WeatherDashboard", () => {

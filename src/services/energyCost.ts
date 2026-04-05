@@ -99,11 +99,12 @@ export function calculateEnergyCost(
   distanceKm: number,
   carType: string,
   fuelType: string,
-  countryCode: string
+  countryCode: string,
+  customConsumption?: number | null
 ): EnergyCostResult {
   // Pure electric
   if (isElectric(carType)) {
-    const rate = getElectricConsumptionRate(carType);
+    const rate = customConsumption ?? getElectricConsumptionRate(carType);
     const pricePerUnit = getElectricityPrice(countryCode);
     const kWh = (distanceKm / 100) * rate;
     return {
@@ -118,7 +119,7 @@ export function calculateEnergyCost(
   // PHEV: combination of fuel + electricity
   if (isPhev(carType)) {
     const prices = getFuelPrices(countryCode);
-    const fuelRate = getConsumptionRate(carType, fuelType);
+    const fuelRate = customConsumption ?? getConsumptionRate(carType, fuelType);
     const elRate = getElectricConsumptionRate(carType);
     const fuelPrice = prices.benzine; // PHEV always benzine
     const elPrice = getElectricityPrice(countryCode);
@@ -141,7 +142,7 @@ export function calculateEnergyCost(
 
   // Standard combustion / hybrid
   const prices = getFuelPrices(countryCode);
-  const rate = getConsumptionRate(carType, fuelType);
+  const rate = customConsumption ?? getConsumptionRate(carType, fuelType);
   const pricePerUnit =
     fuelType === "diesel" ? prices.diesel :
     fuelType === "lpg" ? prices.lpg :

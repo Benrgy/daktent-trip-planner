@@ -41,6 +41,6 @@ describe("TripWizard", () => {
 
   it("shows consumption label for default car type", () => {
     render(<TripWizard onGenerate={() => {}} />);
-    expect(screen.getByText("9 L/100km")).toBeInTheDocument();
+    expect(screen.getByText(/9 L\/100km/)).toBeInTheDocument();
   });
 });
