@@ -1,8 +1,9 @@
 import { TripConfig } from "./TripWizard";
 import { RouteResult, formatDuration } from "@/services/routing";
-import { Share2, Printer, Check } from "lucide-react";
+import { Share2, Printer, Check, Download } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { useShareTrip } from "@/hooks/useSavedTrip";
+import { exportTripPdf } from "@/services/pdfExport";
 import { useState } from "react";
 
 interface Props {
@@ -29,6 +30,9 @@ const TripSummary = ({ config, routeResult }: Props) => {
       <Button variant="outline" size="sm" onClick={handleShare} className="gap-1.5 text-xs">
         {shareStatus ? <Check className="h-3.5 w-3.5" /> : <Share2 className="h-3.5 w-3.5" />}
         {shareStatus ?? "Deel trip"}
+      </Button>
+      <Button variant="outline" size="sm" onClick={() => exportTripPdf(config, routeResult)} className="gap-1.5 text-xs">
+        <Download className="h-3.5 w-3.5" /> PDF
       </Button>
       <Button variant="outline" size="sm" onClick={() => window.print()} className="gap-1.5 text-xs">
         <Printer className="h-3.5 w-3.5" /> Print
