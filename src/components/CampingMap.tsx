@@ -112,6 +112,27 @@ const CampingMap = ({ spots, routeGeometry }: CampingMapProps) => {
     }
   }, [spots]);
 
+  // Draw route polyline
+  useEffect(() => {
+    const map = mapRef.current;
+    if (!map) return;
+
+    if (routeLayerRef.current) {
+      map.removeLayer(routeLayerRef.current);
+      routeLayerRef.current = null;
+    }
+
+    if (routeGeometry && routeGeometry.length > 1) {
+      const polyline = L.polyline(routeGeometry, {
+        color: "#2563eb",
+        weight: 3,
+        opacity: 0.7,
+        dashArray: "8 4",
+      }).addTo(map);
+      routeLayerRef.current = polyline;
+    }
+  }, [routeGeometry]);
+
   return (
     <div className="overflow-hidden rounded-lg border border-border shadow-card">
       <div ref={containerRef} className="h-[380px] w-full md:h-[460px]" />
