@@ -48,7 +48,7 @@ const countryNames: Record<string, string> = {
   NL: "Nederland", BE: "België", DE: "Duitsland", FR: "Frankrijk",
   SC: "Scandinavië", ES: "Spanje", IT: "Italië", PT: "Portugal",
   AT: "Oostenrijk", CH: "Zwitserland", HR: "Kroatië", SI: "Slovenië",
-  GB: "Engeland (UK)",
+  GB: "Engeland (UK)", GR: "Griekenland",
 };
 
 export function getFuelPrices(countryCode: string): FuelPrices {

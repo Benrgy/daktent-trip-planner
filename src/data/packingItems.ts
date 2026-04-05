@@ -65,6 +65,7 @@ export const packingCategories: Record<string, PackingItem[]> = {
     { id: "doc6", name: "Vignet (vooraf kopen!)", category: "Documenten", destinations: ["CH", "AT", "SI"] },
     { id: "doc7", name: "UK-stekker adapter (Type G)", category: "Documenten", destinations: ["GB"] },
     { id: "doc8", name: "Veerboot / Kanaaltunnel ticket", category: "Documenten", destinations: ["GB", "SC"] },
+    { id: "doc9", name: "Stekker adapter (Type C/F)", category: "Documenten", destinations: ["GR"] },
   ],
   "Winteruitrusting": [
     { id: "w1", name: "Sneeuwkettingen", category: "Winteruitrusting", season: "winter" },
