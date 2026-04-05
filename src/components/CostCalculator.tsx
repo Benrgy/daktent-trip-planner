@@ -1,11 +1,11 @@
 import { TripConfig } from "./TripWizard";
 import { CampingSpot } from "@/data/campingSpots";
+import { getFuelPrices } from "@/services/fuelPrices";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { ArrowDown } from "lucide-react";
+import { ArrowDown, Fuel } from "lucide-react";
 
 const fuelRates: Record<string, number> = { small: 6, medium: 8, suv: 10, "4x4": 12 };
-const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300 };
-const FUEL_PRICE = 2.05;
+const avgDistPerDay: Record<string, number> = { NL: 120, BE: 150, DE: 200, FR: 250, SC: 300, ES: 280, IT: 220, PT: 200, AT: 180, CH: 150, HR: 200, SI: 150 };
 
 interface Props {
   config: TripConfig;
@@ -14,17 +14,20 @@ interface Props {
 }
 
 const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
+  const prices = getFuelPrices(config.destination);
+  const fuelPrice = prices.benzine;
+
   const distPerDay = avgDistPerDay[config.destination] || 150;
   const totalKm = realDistanceKm ?? (distPerDay * config.days);
   const fuelLiters = (totalKm / 100) * (fuelRates[config.carType] || 8);
-  const fuelCost = Math.round(fuelLiters * FUEL_PRICE);
+  const fuelCost = Math.round(fuelLiters * fuelPrice);
 
   const avgCampCost = spots.length > 0
     ? spots.reduce((sum, s) => sum + s.pricePerNight, 0) / spots.length
     : 12;
   const campingCost = Math.round(avgCampCost * config.days);
   const foodCost = Math.round(config.people * config.days * 25);
-  const tollCost = ["FR", "SC"].includes(config.destination) ? Math.round(config.days * 8) : 0;
+  const tollCost = ["FR", "SC", "IT", "ES", "AT", "CH", "HR", "SI"].includes(config.destination) ? Math.round(config.days * 8) : 0;
   const totalCost = fuelCost + campingCost + foodCost + tollCost;
   const hotelEquiv = config.days * config.people * 85;
   const savings = hotelEquiv - totalCost;
@@ -77,6 +80,25 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
               ))}
             </div>
           </div>
+        </div>
+
+        {/* Fuel price info */}
+        <div className="mt-4 rounded-lg border border-border bg-card p-4 shadow-card">
+          <div className="flex items-center gap-2 mb-2">
+            <Fuel className="h-4 w-4 text-primary" />
+            <h3 className="text-sm font-semibold text-foreground">Brandstofprijzen {prices.country}</h3>
+          </div>
+          <div className="grid grid-cols-2 gap-4 text-sm">
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Benzine (Euro 95)</span>
+              <span className="font-semibold text-foreground">€{prices.benzine.toFixed(2)}/L</span>
+            </div>
+            <div className="flex justify-between">
+              <span className="text-muted-foreground">Diesel</span>
+              <span className="font-semibold text-foreground">€{prices.diesel.toFixed(2)}/L</span>
+            </div>
+          </div>
+          <p className="mt-2 text-[10px] text-muted-foreground">Bron: {prices.source} · {totalKm} km × {(fuelRates[config.carType] || 8)}L/100km × €{fuelPrice.toFixed(2)}/L = €{fuelCost}</p>
         </div>
       </div>
     </section>
