@@ -105,7 +105,7 @@ const RouteInfo = ({ config, onRouteCalculated }: Props) => {
               ) : (
                 <VehicleIcon className="mx-auto mb-1 h-4 w-4 text-primary" />
               )}
-              <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination).cost}</p>
+              <p className="text-lg font-bold text-foreground">€{calculateEnergyCost(route.distanceKm, config.carType, config.fuelType, config.destination, config.customConsumption).cost}</p>
               <p className="text-[11px] text-muted-foreground">{electric ? "Opladen" : phev ? "Brandstof+Stroom" : "Brandstof"}</p>
             </div>
             {hasEv && (() => {

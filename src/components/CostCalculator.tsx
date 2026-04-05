@@ -17,7 +17,7 @@ const CostCalculator = ({ config, spots, realDistanceKm }: Props) => {
   const distPerDay = avgDistPerDay[config.destination] || 150;
   const totalKm = realDistanceKm ?? (distPerDay * config.days);
 
-  const energy = calculateEnergyCost(totalKm, config.carType, config.fuelType, config.destination);
+  const energy = calculateEnergyCost(totalKm, config.carType, config.fuelType, config.destination, config.customConsumption);
   const fuelCost = energy.cost;
 
   const avgCampCost = spots.length > 0
