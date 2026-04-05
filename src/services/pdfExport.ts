@@ -1,6 +1,7 @@
 import jsPDF from "jspdf";
 import { TripConfig } from "@/components/TripWizard";
 import { RouteResult, formatDuration } from "@/services/routing";
+import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
 import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
 import { getCountryData } from "@/data/countryData";
