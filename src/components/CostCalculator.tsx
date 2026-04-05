@@ -4,7 +4,7 @@ import { CampingSpot } from "@/data/campingSpots";
 import { getFuelPrices } from "@/services/fuelPrices";
 import { calculateEnergyCost, isElectric, isPhev, getElectricityPrice } from "@/services/energyCost";
 import { PieChart, Pie, Cell, ResponsiveContainer, Tooltip } from "recharts";
-import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Printer } from "lucide-react";
+import { ArrowDown, Fuel, Zap, Settings2, RotateCcw, Printer, Ship } from "lucide-react";
 import { Input } from "@/components/ui/input";
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from "@/components/ui/collapsible";
 import { Button } from "@/components/ui/button";
