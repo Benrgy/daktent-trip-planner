@@ -34,6 +34,7 @@ const lpgPricesEur: Record<string, number> = {
 export interface FuelPrices {
   benzine: number;
   diesel: number;
+  lpg: number;
   country: string;
   source: string;
 }
