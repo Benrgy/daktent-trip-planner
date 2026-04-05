@@ -24,6 +24,7 @@ export interface TripConfig {
   customCampingPrice: number | null;
   customFoodBudget: number | null;
   includeReturnTrip: boolean;
+  departureTime: string;
 }
 
 interface TripWizardProps {
