@@ -49,6 +49,7 @@ export function getFuelPrices(countryCode: string): FuelPrices {
   return {
     benzine: fuelPricesEur[countryCode] ?? 1.90,
     diesel: dieselPricesEur[countryCode] ?? 1.70,
+    lpg: lpgPricesEur[countryCode] ?? 0.80,
     country: countryNames[countryCode] ?? countryCode,
     source: "EU Weekly Oil Bulletin Q1 2026",
   };
