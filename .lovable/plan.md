@@ -1,17 +1,26 @@
 
 
-# Fix: package-lock.json synchroniseren
+# README.md toevoegen met SEO-geoptimaliseerde content
 
-## Probleem
-De GitHub Actions build faalt omdat `package-lock.json` niet gesynchroniseerd is met `package.json`. De `jspdf` dependency (en transitive dependencies) staan wel in `package.json` maar ontbreken in de lockfile. `npm ci` vereist exacte synchronisatie.
+## Wat
+Vervang de lege README.md met een volledige, SEO-geoptimaliseerde projectbeschrijving gebaseerd op de bestaande `llms.txt` content, uitgebreid met badges, screenshots-sectie, technische stack, installatie-instructies en bijdrage-sectie.
 
-## Oplossing
+## Inhoud van de README
 
-**Eén stap**: Voer `npm install` uit in de sandbox om `package-lock.json` te regenereren. Dit update de lockfile zodat alle dependencies (inclusief `jspdf` en transitive deps zoals `canvg`, `dompurify`, `fflate`, etc.) correct worden vastgelegd.
+1. **Header**: Projectnaam + korte tagline + badges (GitHub Pages status, license, taal)
+2. **Hero beschrijving**: Korte pitch met keywords (daktent, roadtrip, kamperen, Europa)
+3. **Screenshots sectie**: Placeholder voor screenshots met instructie om ze toe te voegen in `/public/screenshots/`
+4. **Features**: Uitgebreide feature-lijst met iconen (uit llms.txt)
+5. **Ondersteunde landen**: 12 landen met vlaggen-emoji's
+6. **Gebruik / Getting Started**: Stap-voor-stap in 3 stappen
+7. **Tech Stack**: React, Vite, Tailwind, TypeScript, Leaflet, jsPDF
+8. **Lokaal draaien**: `npm install` + `npm run dev` instructies
+9. **SEO keywords**: Natuurlijk verwerkt in de tekst (daktent trip planner, rooftop tent, camping Europa, gratis roadtrip planner)
+10. **Links**: Live website, llms.txt
+11. **License / Contributing**: Standaard secties
 
-Na commit wordt de lockfile automatisch naar GitHub gepusht via de bidirectionele sync, waarna de GitHub Actions deploy weer slaagt.
-
-## Technisch detail
-- Commando: `npm install` (regenereert `package-lock.json`)
-- Geen code-wijzigingen nodig, alleen lockfile-sync
+## Technisch
+- Eenvoudige bestandswijziging: alleen `README.md` wordt overschreven
+- Taal: Nederlands (match met doelgroep) met Engelse technische termen
+- Markdown best practices: headers, badges, emoji, tabellen
 
