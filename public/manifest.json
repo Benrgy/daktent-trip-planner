@@ -1,0 +1,21 @@
+{
+  "name": "DaktentTripPlanner - Plan je daktent roadtrip",
+  "short_name": "DaktentTrip",
+  "description": "Plan je perfecte daktent roadtrip in 3 minuten. Ontdek 40+ kampeerplekken in 12 Europese landen.",
+  "start_url": "/daktent-trip-planner/",
+  "display": "standalone",
+  "theme_color": "#1a3a2a",
+  "background_color": "#1a3a2a",
+  "icons": [
+    {
+      "src": "/daktent-trip-planner/favicon.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "/daktent-trip-planner/apple-touch-icon.png",
+      "sizes": "180x180",
+      "type": "image/png"
+    }
+  ]
+}
