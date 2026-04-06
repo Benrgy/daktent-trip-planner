@@ -31,6 +31,7 @@ export interface TripConfig {
 
 interface TripWizardProps {
   onGenerate: (config: TripConfig) => void;
+  preselectedDestination?: string;
 }
 
 const preferenceOptions = [
