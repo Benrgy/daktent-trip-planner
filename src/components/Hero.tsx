@@ -1,6 +1,6 @@
 import { ArrowRight, MapPin, Clock, Shield } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import heroBg from "@/assets/hero-bg.jpg";
+import heroBg from "@/assets/hero-bg.webp";
 
 interface HeroProps {
   onStart: () => void;
