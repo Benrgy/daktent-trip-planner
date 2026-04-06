@@ -15,9 +15,9 @@ DaktentTripPlanner is dé gratis Nederlandstalige web-app voor daktent kampeerde
 
 <!-- Voeg screenshots toe in /public/screenshots/ en update de paden hieronder -->
 
-| Route Planner | Kampeerkaart | Kostenberekening |
-|:---:|:---:|:---:|
-| *Screenshot toevoegen* | *Screenshot toevoegen* | *Screenshot toevoegen* |
+| Hero | Route Planner | Kampeerkaart | Kostenberekening |
+|:---:|:---:|:---:|:---:|
+| ![Hero](public/screenshots/hero.png) | ![Route Planner](public/screenshots/route-planner.png) | ![Kampeerkaart](public/screenshots/kampeerkaart.png) | ![Kostenberekening](public/screenshots/kostenberekening.png) |
 
 ---
 
