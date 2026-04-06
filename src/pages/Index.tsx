@@ -1,150 +1,113 @@
-import { useState, useRef, useEffect } from "react";
+import { Link } from "react-router-dom";
 import Navbar from "@/components/Navbar";
 import Hero from "@/components/Hero";
-import TripWizard, { TripConfig } from "@/components/TripWizard";
-import CampingMap from "@/components/CampingMap";
-import SpotFilters from "@/components/SpotFilters";
-import CostCalculator from "@/components/CostCalculator";
-import WeatherDashboard from "@/components/WeatherDashboard";
-import PackingChecklist from "@/components/PackingChecklist";
-import RouteInfo from "@/components/RouteInfo";
-import CountryInfo from "@/components/CountryInfo";
-import TripSummary from "@/components/TripSummary";
-import { AffiliateTopBanner, AffiliateCTA } from "@/components/AffiliateBanner";
-import { campingSpots, CampingSpot } from "@/data/campingSpots";
-import { fetchOsmCampingSites } from "@/services/overpass";
-import { RouteResult } from "@/services/routing";
-import { useFavorites } from "@/hooks/useFavorites";
-import { saveTripToStorage, decodeTripFromUrl } from "@/hooks/useSavedTrip";
+import { AffiliateTopBanner } from "@/components/AffiliateBanner";
+import { countryData } from "@/data/countryData";
+import { ArrowRight, MapPin, Globe, HelpCircle } from "lucide-react";
+import { Button } from "@/components/ui/button";
+
+const countryFlags: Record<string, string> = {
+  NL: "🇳🇱", BE: "🇧🇪", DE: "🇩🇪", FR: "🇫🇷", SC: "🇸🇪",
+  ES: "🇪🇸", IT: "🇮🇹", PT: "🇵🇹", AT: "🇦🇹", CH: "🇨🇭",
+  HR: "🇭🇷", SI: "🇸🇮", GB: "🇬🇧", GR: "🇬🇷",
+};
 
 const Index = () => {
-  const [tripConfig, setTripConfig] = useState<TripConfig | null>(null);
-  const [filter, setFilter] = useState("all");
-  const resultsRef = useRef<HTMLDivElement>(null);
-  const [osmSpots, setOsmSpots] = useState<CampingSpot[]>([]);
-  const [routeResult, setRouteResult] = useState<RouteResult | null>(null);
-  const { favorites, toggleFavorite } = useFavorites();
-
-  useEffect(() => {
-    const urlTrip = decodeTripFromUrl();
-    if (urlTrip) {
-      if (!urlTrip.destinations) urlTrip.destinations = urlTrip.destination ? [urlTrip.destination] : [];
-      setTripConfig(urlTrip);
-      setFilter(urlTrip.destinations[0] || "all");
-      setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 300);
-    }
-  }, []);
-
-  const handleGenerate = (config: TripConfig) => {
-    setTripConfig(config);
-    setFilter(config.destinations?.[0] || config.destination || "all");
-    saveTripToStorage(config);
-    setTimeout(() => resultsRef.current?.scrollIntoView({ behavior: "smooth" }), 100);
-  };
-
   const handleStart = () => {
-    document.getElementById("wizard")?.scrollIntoView({ behavior: "smooth" });
+    // Navigate to planner page
+    window.location.href = (window.location.pathname.startsWith("/daktent-trip-planner") ? "/daktent-trip-planner" : "") + "/planner";
   };
 
-  const destinations = tripConfig?.destinations?.length ? tripConfig.destinations : (tripConfig?.destination ? [tripConfig.destination] : []);
-
-  useEffect(() => {
-    if (destinations.length === 0) return;
-    const existingIds = new Set(campingSpots.map(s => s.id));
-    Promise.all(destinations.map(d => fetchOsmCampingSites(d, existingIds)))
-      .then(results => setOsmSpots(results.flat()));
-  }, [destinations.join(",")]);
-
-  const allSpots = [...campingSpots, ...osmSpots];
-
-  const filteredSpots = allSpots.filter(s => {
-    if (filter === "all") return destinations.length === 0 || destinations.includes(s.countryCode);
-    if (filter === "free") return s.type === "free";
-    if (filter === "paid") return s.type === "paid";
-    if (filter === "favorites") return favorites.has(s.id);
-    return s.countryCode === filter;
-  });
+  const topCountries = Object.entries(countryData).slice(0, 6);
 
   return (
     <div className="min-h-screen bg-background">
       <AffiliateTopBanner />
       <Navbar />
       <Hero onStart={handleStart} />
-      <TripWizard onGenerate={handleGenerate} />
 
-      <div ref={resultsRef}>
-        {tripConfig && (
-          <>
-            <section className="border-b border-border py-4 px-4 print:hidden">
-              <div className="container mx-auto max-w-3xl">
-                <TripSummary config={tripConfig} routeResult={routeResult} spots={filteredSpots} />
-              </div>
-            </section>
+      {/* Quick links section */}
+      <section className="border-b border-border py-16 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <h2 className="mb-2 text-center font-display text-2xl font-bold text-foreground">
+            Wat wil je doen?
+          </h2>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Plan je reis, ontdek landen of bekijk veelgestelde vragen.
+          </p>
+          <div className="grid gap-4 sm:grid-cols-3">
+            <Link
+              to="/planner"
+              className="group flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-6 text-center transition-all hover:border-primary/40 hover:shadow-md"
+            >
+              <MapPin className="h-8 w-8 text-primary" />
+              <h3 className="font-display font-semibold text-foreground">Route planner</h3>
+              <p className="text-xs text-muted-foreground">Plan je complete daktent roadtrip met kosten, weer en paklijst.</p>
+            </Link>
+            <Link
+              to="/landen"
+              className="group flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-6 text-center transition-all hover:border-primary/40 hover:shadow-md"
+            >
+              <Globe className="h-8 w-8 text-primary" />
+              <h3 className="font-display font-semibold text-foreground">Landen info</h3>
+              <p className="text-xs text-muted-foreground">Wildcamping regels, snelheidslimieten en tips per land.</p>
+            </Link>
+            <Link
+              to="/faq"
+              className="group flex flex-col items-center gap-3 rounded-lg border border-border bg-card p-6 text-center transition-all hover:border-primary/40 hover:shadow-md"
+            >
+              <HelpCircle className="h-8 w-8 text-primary" />
+              <h3 className="font-display font-semibold text-foreground">Veelgestelde vragen</h3>
+              <p className="text-xs text-muted-foreground">Antwoorden op de meest voorkomende vragen.</p>
+            </Link>
+          </div>
+        </div>
+      </section>
 
-            <section className="border-b border-border py-8 px-4">
-              <div className="container mx-auto max-w-3xl">
-                <RouteInfo config={tripConfig} onRouteCalculated={setRouteResult} />
-              </div>
-            </section>
+      {/* Popular countries */}
+      <section className="border-b border-border bg-muted/20 py-16 px-4">
+        <div className="container mx-auto max-w-5xl">
+          <h2 className="mb-2 text-center font-display text-2xl font-bold text-foreground">
+            Populaire bestemmingen
+          </h2>
+          <p className="mb-8 text-center text-sm text-muted-foreground">
+            Ontdek de meest gekozen landen voor daktent kamperen.
+          </p>
+          <div className="grid gap-3 sm:grid-cols-2 lg:grid-cols-3">
+            {topCountries.map(([code, data]) => (
+              <Link
+                key={code}
+                to={`/landen/${code.toLowerCase()}`}
+                className="flex items-center gap-3 rounded-lg border border-border bg-card p-4 transition-all hover:border-primary/40 hover:shadow-sm"
+              >
+                <span className="text-2xl">{countryFlags[code]}</span>
+                <span className="font-display font-medium text-foreground">{data.name}</span>
+                <ArrowRight className="ml-auto h-4 w-4 text-muted-foreground" />
+              </Link>
+            ))}
+          </div>
+          <div className="mt-6 text-center">
+            <Button variant="outline" asChild>
+              <Link to="/landen">Bekijk alle {Object.keys(countryData).length} landen <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
+          </div>
+        </div>
+      </section>
 
-            <section className="border-b border-border py-8 px-4">
-              <div className="container mx-auto max-w-3xl space-y-3">
-                {destinations.map(dest => (
-                  <CountryInfo key={dest} countryCode={dest} />
-                ))}
-              </div>
-            </section>
-
-            <section id="spots" className="border-b border-border bg-muted/30 py-16 px-4">
-              <div className="container mx-auto max-w-3xl">
-                <div className="mb-1 text-xs font-medium uppercase tracking-wider text-muted-foreground">Stap 2</div>
-                <h2 className="mb-1 font-display text-2xl font-bold text-foreground">Kampeerplekken</h2>
-                <p className="mb-6 text-sm text-muted-foreground">
-                  {filteredSpots.length} locaties gevonden — klik op een marker voor details.
-                </p>
-                <div className="mb-4">
-                  <SpotFilters filter={filter} onFilterChange={setFilter} />
-                </div>
-                <CampingMap spots={filteredSpots} routeGeometry={routeResult?.geometry} favorites={favorites} onToggleFavorite={toggleFavorite} />
-              </div>
-            </section>
-
-            <CostCalculator config={tripConfig} spots={filteredSpots} realDistanceKm={routeResult?.distanceKm} />
-            <WeatherDashboard config={tripConfig} />
-            <PackingChecklist destination={tripConfig.destination} destinations={tripConfig.destinations} />
-            <AffiliateCTA />
-          </>
-        )}
-      </div>
-
-      <section id="faq" className="border-t border-border bg-muted/20 py-16 px-4">
-        <div className="container mx-auto max-w-3xl">
-          <h2 className="mb-8 font-display text-2xl font-bold text-foreground">Veelgestelde vragen</h2>
-          <div className="space-y-6" itemScope itemType="https://schema.org/FAQPage">
-            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question" open>
-              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Wat is DaktentTripPlanner?</summary>
-              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">DaktentTripPlanner is een gratis online tool waarmee je in 3 minuten een complete daktent roadtrip plant. Je krijgt kampeerplekken op een interactieve kaart, een kostenberekening, weersverwachting en een slimme inpakchecklist — alles in één overzicht.</p>
-              </div>
-            </details>
-            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Kan ik meerdere bestemmingen plannen?</summary>
-              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Ja! Je kunt meerdere landen toevoegen als stops op je route. De tool berekent automatisch de totale afstand, kosten en reistijd voor je complete multi-stop roadtrip.</p>
-              </div>
-            </details>
-            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Welke landen worden ondersteund?</summary>
-              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">We ondersteunen 14 bestemmingen: Nederland, België, Duitsland, Frankrijk, Scandinavië, Engeland, Spanje, Italië, Portugal, Oostenrijk, Zwitserland, Kroatië, Slovenië en Griekenland.</p>
-              </div>
-            </details>
-            <details className="group rounded-lg border border-border bg-card p-4" itemScope itemProp="mainEntity" itemType="https://schema.org/Question">
-              <summary className="cursor-pointer font-display text-sm font-semibold text-foreground group-open:mb-2" itemProp="name">Hoe plan ik een daktent roadtrip?</summary>
-              <div itemScope itemProp="acceptedAnswer" itemType="https://schema.org/Answer">
-                <p className="text-sm leading-relaxed text-muted-foreground" itemProp="text">Vul je vertrekplaats in, voeg één of meerdere bestemmingen toe, stel reisduur en aantal personen in. Klik op 'Genereer route' voor een compleet overzicht met kaart, kosten, weer en paklijst.</p>
-              </div>
-            </details>
+      {/* Compact FAQ teaser */}
+      <section className="border-b border-border py-16 px-4">
+        <div className="container mx-auto max-w-3xl text-center">
+          <h2 className="mb-4 font-display text-2xl font-bold text-foreground">Heb je een vraag?</h2>
+          <p className="mb-6 text-sm text-muted-foreground">
+            Bekijk onze veelgestelde vragen of start direct met plannen.
+          </p>
+          <div className="flex justify-center gap-3">
+            <Button variant="outline" asChild>
+              <Link to="/faq">Bekijk FAQ</Link>
+            </Button>
+            <Button asChild>
+              <Link to="/planner">Start planner <ArrowRight className="ml-2 h-4 w-4" /></Link>
+            </Button>
           </div>
         </div>
       </section>
@@ -154,8 +117,9 @@ const Index = () => {
         <p className="mt-1 text-xs text-muted-foreground">© 2026 — Plan je perfecte daktent avontuur</p>
         <p className="mt-2 text-[11px] text-muted-foreground">Wildcamping data is indicatief. Controleer altijd lokale regelgeving.</p>
         <nav className="mt-4 flex justify-center gap-4 text-xs text-muted-foreground" aria-label="Footer navigatie">
-          <a href="#wizard" className="hover:text-foreground">Route planner</a>
-          <a href="#faq" className="hover:text-foreground">FAQ</a>
+          <Link to="/planner" className="hover:text-foreground">Route planner</Link>
+          <Link to="/landen" className="hover:text-foreground">Landen</Link>
+          <Link to="/faq" className="hover:text-foreground">FAQ</Link>
         </nav>
       </footer>
     </div>
