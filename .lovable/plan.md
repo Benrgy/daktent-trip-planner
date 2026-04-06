@@ -1,22 +1,22 @@
 
 
-# Product Shots voor README
+# Manifest.json toevoegen voor installeerbaarheid
 
 ## Wat
-Vier professionele product shots maken van de bestaande app-screenshots met de product-shot skill. Elke screenshot krijgt een macOS-stijl window frame met traffic light buttons, afgeronde hoeken, drop shadow en een mesh gradient achtergrond.
+Een `manifest.json` toevoegen zodat de app installeerbaar is op telefoons en desktops ("Toevoegen aan startscherm"), zonder service worker of offline support.
 
-## Aanpak
+## Stappen
 
-1. **Kopieer het product-shot script** naar `/tmp/generate.py`
-2. **Genereer 4 product shots** met complementaire gradient presets:
-   - `hero.png` → **ocean** preset (past bij de blauwe/groene camping thema)
-   - `route-planner.png` → **aurora** preset (groen, past bij natuur/reis)
-   - `kampeerkaart.png` → **sunset** preset (warm, avontuurlijk)
-   - `kostenberekening.png` → **peach** preset (zacht, informatief)
-3. **QA**: Visueel controleren of alle shots er goed uitzien
-4. **Vervang de originele screenshots** in `public/screenshots/` met de product shots
-5. **README.md blijft ongewijzigd** — dezelfde bestandsnamen worden hergebruikt
+1. **`public/manifest.json` aanmaken** met:
+   - `name`, `short_name`, `description` (Nederlands)
+   - `start_url`: `/daktent-trip-planner/`
+   - `display`: `standalone`
+   - `theme_color` en `background_color`: donkergroen (#1a3a2a)
+   - `icons`: verwijzing naar bestaande `favicon.png` en `apple-touch-icon.png` in meerdere formaten
 
-## Resultaat
-Professionele, gepolijste product shots die de app er premium uit laten zien op GitHub, in Google zoekresultaten, AI Overviews en LLM-crawlers. De visuele kwaliteit verhoogt CTR vanuit search en vergroot de kans dat AI-modellen de app als hoogwaardig classificeren.
+2. **`index.html` updaten**:
+   - `<link rel="manifest" href="/daktent-trip-planner/manifest.json">` toevoegen in `<head>`
+   - `<meta name="theme-color" content="#1a3a2a">` toevoegen
+
+Geen service worker, geen vite-plugin-pwa, geen offline caching.
 
