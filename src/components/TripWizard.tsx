@@ -31,6 +31,7 @@ export interface TripConfig {
 
 interface TripWizardProps {
   onGenerate: (config: TripConfig) => void;
+  preselectedDestination?: string;
 }
 
 const preferenceOptions = [
@@ -77,11 +78,11 @@ const allDestinations = [
 
 const destLabels: Record<string, string> = Object.fromEntries(allDestinations.map(d => [d.value, d.label]));
 
-const TripWizard = ({ onGenerate }: TripWizardProps) => {
+const TripWizard = ({ onGenerate, preselectedDestination }: TripWizardProps) => {
   const [config, setConfig] = useState<TripConfig>({
     startLocation: "",
-    destination: "",
-    destinations: [],
+    destination: preselectedDestination || "",
+    destinations: preselectedDestination ? [preselectedDestination] : [],
     days: 5,
     budget: 100,
     carType: "suv",
