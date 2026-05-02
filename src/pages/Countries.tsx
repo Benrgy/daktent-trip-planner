@@ -4,6 +4,8 @@ import { countryData } from "@/data/countryData";
 import { campingSpots } from "@/data/campingSpots";
 import { usePageSEO } from "@/hooks/usePageSEO";
 import { MapPin, Tent, Shield } from "lucide-react";
+import RevealOnScroll from "@/components/cinematic/RevealOnScroll";
+import TiltCard from "@/components/cinematic/TiltCard";
 
 const countryFlags: Record<string, string> = {
   NL: "🇳🇱", BE: "🇧🇪", DE: "🇩🇪", FR: "🇫🇷", SC: "🇸🇪",
@@ -41,37 +43,40 @@ const Countries = () => {
         </p>
 
         <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-3">
-          {countries.map(([code, data]) => {
+          {countries.map(([code, data], i) => {
             const spotCount = campingSpots.filter(s => s.countryCode === code).length;
             return (
-              <Link
-                key={code}
-                to={`/landen/${code.toLowerCase()}`}
-                className="group rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-md"
-              >
-                <div className="mb-3 flex items-center gap-3">
-                  <span className="text-3xl">{countryFlags[code] || "🏳️"}</span>
-                  <div>
-                    <h2 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
-                      {data.name}
-                    </h2>
-                    <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusColors[data.wildcamping.status]}`}>
-                      Wildcamping: {statusLabels[data.wildcamping.status]}
-                    </span>
-                  </div>
-                </div>
-                <div className="flex items-center gap-4 text-xs text-muted-foreground">
-                  <span className="flex items-center gap-1">
-                    <MapPin className="h-3 w-3" /> {spotCount} plekken
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Shield className="h-3 w-3" /> Max {data.speedLimits.highway} km/u
-                  </span>
-                  <span className="flex items-center gap-1">
-                    <Tent className="h-3 w-3" /> Nood: {data.emergency}
-                  </span>
-                </div>
-              </Link>
+              <RevealOnScroll key={code} delay={i * 60}>
+                <TiltCard max={5} className="rounded-lg h-full">
+                  <Link
+                    to={`/landen/${code.toLowerCase()}`}
+                    className="group block h-full rounded-lg border border-border bg-card p-5 transition-all hover:border-primary/40 hover:shadow-md"
+                  >
+                    <div className="mb-3 flex items-center gap-3">
+                      <span className="text-3xl">{countryFlags[code] || "🏳️"}</span>
+                      <div>
+                        <h2 className="font-display text-lg font-semibold text-foreground group-hover:text-primary transition-colors">
+                          {data.name}
+                        </h2>
+                        <span className={`inline-block rounded-full px-2 py-0.5 text-[10px] font-semibold ${statusColors[data.wildcamping.status]}`}>
+                          Wildcamping: {statusLabels[data.wildcamping.status]}
+                        </span>
+                      </div>
+                    </div>
+                    <div className="flex items-center gap-4 text-xs text-muted-foreground">
+                      <span className="flex items-center gap-1">
+                        <MapPin className="h-3 w-3" /> {spotCount} plekken
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Shield className="h-3 w-3" /> Max {data.speedLimits.highway} km/u
+                      </span>
+                      <span className="flex items-center gap-1">
+                        <Tent className="h-3 w-3" /> Nood: {data.emergency}
+                      </span>
+                    </div>
+                  </Link>
+                </TiltCard>
+              </RevealOnScroll>
             );
           })}
         </div>
