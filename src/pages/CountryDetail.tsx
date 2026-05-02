@@ -7,6 +7,7 @@ import { usePageSEO } from "@/hooks/usePageSEO";
 import { useFavorites } from "@/hooks/useFavorites";
 import { ArrowLeft, Gauge, Phone, Car, Tent, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import RevealOnScroll from "@/components/cinematic/RevealOnScroll";
 
 const countryFlags: Record<string, string> = {
   NL: "🇳🇱", BE: "🇧🇪", DE: "🇩🇪", FR: "🇫🇷", SC: "🇸🇪",
