@@ -7,6 +7,7 @@ import { usePageSEO } from "@/hooks/usePageSEO";
 import { useFavorites } from "@/hooks/useFavorites";
 import { ArrowLeft, Gauge, Phone, Car, Tent, MapPin, ArrowRight } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import RevealOnScroll from "@/components/cinematic/RevealOnScroll";
 
 const countryFlags: Record<string, string> = {
   NL: "🇳🇱", BE: "🇧🇪", DE: "🇩🇪", FR: "🇫🇷", SC: "🇸🇪",
@@ -71,7 +72,7 @@ const CountryDetail = () => {
         </div>
 
         {/* Speed limits */}
-        <section className="mb-8">
+        <RevealOnScroll as="section" className="mb-8">
           <div className="flex items-center gap-2 mb-3">
             <Gauge className="h-4 w-4 text-primary" />
             <h2 className="font-display text-lg font-semibold text-foreground">Snelheidslimieten</h2>
@@ -88,17 +89,17 @@ const CountryDetail = () => {
               </div>
             ))}
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* Emergency */}
-        <section className="mb-8 flex items-center gap-3 rounded-lg border border-border bg-card p-4">
+        <RevealOnScroll as="section" delay={80} className="mb-8 flex items-center gap-3 rounded-lg border border-border bg-card p-4">
           <Phone className="h-4 w-4 text-primary" />
           <span className="text-sm font-semibold text-foreground">Alarmnummer:</span>
           <span className="text-sm font-bold text-foreground">{data.emergency}</span>
-        </section>
+        </RevealOnScroll>
 
         {/* Driving tips */}
-        <section className="mb-8">
+        <RevealOnScroll as="section" className="mb-8">
           <div className="flex items-center gap-2 mb-3">
             <Car className="h-4 w-4 text-primary" />
             <h2 className="font-display text-lg font-semibold text-foreground">Rijtips</h2>
@@ -110,10 +111,10 @@ const CountryDetail = () => {
               </li>
             ))}
           </ul>
-        </section>
+        </RevealOnScroll>
 
         {/* Wildcamping */}
-        <section className="mb-8">
+        <RevealOnScroll as="section" className="mb-8">
           <div className="flex items-center gap-2 mb-3">
             <Tent className="h-4 w-4 text-primary" />
             <h2 className="font-display text-lg font-semibold text-foreground">Wildcamping regels</h2>
@@ -124,10 +125,10 @@ const CountryDetail = () => {
               <p className="mt-2 text-xs text-destructive font-medium">Mogelijke boete: {data.wildcamping.fine}</p>
             )}
           </div>
-        </section>
+        </RevealOnScroll>
 
         {/* Camping spots */}
-        <section className="mb-8">
+        <RevealOnScroll as="section" className="mb-8">
           <div className="flex items-center gap-2 mb-3">
             <MapPin className="h-4 w-4 text-primary" />
             <h2 className="font-display text-lg font-semibold text-foreground">
@@ -139,10 +140,10 @@ const CountryDetail = () => {
           ) : (
             <p className="text-sm text-muted-foreground">Nog geen kampeerplekken beschikbaar voor {data.name}.</p>
           )}
-        </section>
+        </RevealOnScroll>
 
         {/* CTA */}
-        <div className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center">
+        <RevealOnScroll className="rounded-lg border border-primary/20 bg-primary/5 p-6 text-center">
           <h2 className="mb-2 font-display text-lg font-semibold text-foreground">
             Plan een daktent trip naar {data.name}
           </h2>
@@ -154,7 +155,7 @@ const CountryDetail = () => {
               Plan trip naar {data.name} <ArrowRight className="ml-2 h-4 w-4" />
             </Link>
           </Button>
-        </div>
+        </RevealOnScroll>
       </main>
     </div>
   );
